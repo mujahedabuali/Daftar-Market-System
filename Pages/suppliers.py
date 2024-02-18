@@ -13,20 +13,22 @@ from pygame import mixer
 class Suppliers(ck.CTkFrame):
     def __init__(self, parent,login_page_instance):
         super().__init__(parent, corner_radius=0, fg_color="transparent")
+        self.main_frame = ck.CTkFrame(self,fg_color="transparent")
+        self.main_frame.grid(row=0, column=0,pady=60)
         self.grid_columnconfigure(0, weight=10)
 
         self.bookmark_image = ck.CTkImage(Image.open("imags/delivery-courier.png"),size=(40,40))
-        self.label = ck.CTkLabel(self, text="المزودين ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
+        self.label = ck.CTkLabel(self.main_frame, text="المزودين ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
         self.label.pack(pady=5)
         
 
-        self.search_entry = ck.CTkEntry(self,placeholder_text="search")
+        self.search_entry = ck.CTkEntry(self.main_frame,placeholder_text="search")
         self.search_entry.pack(pady=10)
         self.search_entry.bind("<KeyRelease>", self.search)
 
         columns = ('id','name', 'phone')
 
-        self.table = ttk.Treeview(self,
+        self.table = ttk.Treeview(self.main_frame,
                               columns=columns,
                               height=16,
                               selectmode='browse',
@@ -46,7 +48,7 @@ class Suppliers(ck.CTkFrame):
 
         self.table.pack(pady=15)
 
-        button_frame = ck.CTkFrame(self,fg_color="transparent")
+        button_frame = ck.CTkFrame(self.main_frame,fg_color="transparent")
         button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
 
         self.detial_button = ck.CTkButton(button_frame, text="تفاصيل",fg_color="green",height=30,command=self.show_detial,font=ck.CTkFont(size=20,weight="bold"))
@@ -120,7 +122,7 @@ class Suppliers(ck.CTkFrame):
 
                     new_window.destroy()
 
-        new_window = tk.Toplevel(self)
+        new_window = tk.Toplevel(self.main_frame)
         new_window.geometry("420x380")
         new_window.title('Daftar Application')
 
@@ -205,7 +207,7 @@ class Suppliers(ck.CTkFrame):
  
     
         def editName():
-            nwindow = tk.Toplevel(self)
+            nwindow = tk.Toplevel(self.main_frame)
             nwindow.geometry("450x150")
             nwindow.title('Daftar Application ')
 
@@ -227,7 +229,7 @@ class Suppliers(ck.CTkFrame):
             
 
         def editPhone():
-            nwindow = tk.Toplevel(self)
+            nwindow = tk.Toplevel(self.main_frame)
             nwindow.geometry("450x250")
             nwindow.title('Daftar Application ')
 
@@ -247,7 +249,7 @@ class Suppliers(ck.CTkFrame):
             ok_button.pack(padx=10, pady=10)  
 
 
-        new_window = tk.Toplevel(self)
+        new_window = tk.Toplevel(self.main_frame)
         new_window.geometry("420x380")
         new_window.title('Daftar Application ')
 
@@ -323,17 +325,11 @@ class Suppliers(ck.CTkFrame):
              messagebox.showwarning("Warning Message","اختر عنصرًا",icon="warning")
 
     def show_detial_info(self):
+        self.main_frame.grid_forget()
+        self.detial_frame =ck.CTkFrame(self,fg_color="transparent")
+        self.detial_frame.grid(row=0, column=0)
         
-        new_window = tk.Toplevel(self)
-        new_window.geometry("760x660")
-        new_window.title('Daftar Application')
-        
-
-        center_x = int(580)
-        center_y = int(150)
-        new_window.geometry(f"+{center_x}+{center_y}")
-
-        label = ck.CTkLabel(new_window,width=200,text="تفاصيل" ,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold"))
+        label = ck.CTkLabel( self.detial_frame,width=200,text="تفاصيل" ,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold"))
         label.pack(pady=10)
        
         
@@ -341,7 +337,7 @@ class Suppliers(ck.CTkFrame):
         values =  self.table.item(selected_item, 'values')
 
         columns = ("id","total","date")
-        self.table2 = ttk.Treeview(new_window,columns=columns,height=12, selectmode='browse',show='headings')
+        self.table2 = ttk.Treeview( self.detial_frame,columns=columns,height=12, selectmode='browse',show='headings')
 
         self.table2.column("id", anchor="center",width=110,minwidth=110)
         self.table2.column("total", anchor="center",width=110, minwidth=110)
@@ -356,7 +352,7 @@ class Suppliers(ck.CTkFrame):
         name_var = tk.StringVar()
         name_var.set(values[1])   
         
-        labelFrame =ck.CTkFrame(new_window,fg_color="transparent")
+        labelFrame =ck.CTkFrame( self.detial_frame,fg_color="transparent")
         labelFrame.pack(padx=15,pady=25)
 
         label1 = ck.CTkLabel(labelFrame,width=200,text="الاسم: " +name_var.get() ,font=ck.CTkFont(size=19,weight="bold"))
@@ -364,7 +360,7 @@ class Suppliers(ck.CTkFrame):
         
         self.table2.pack(pady=20)
 
-        button_frame = ck.CTkFrame(new_window,fg_color="transparent")
+        button_frame = ck.CTkFrame( self.detial_frame,fg_color="transparent")
         button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
 
         self.detial_button2 = ck.CTkButton(button_frame, text="تفاصيل",fg_color="green",height=20,command=self.show_detial,font=ck.CTkFont(size=16,weight="bold"))
@@ -378,6 +374,9 @@ class Suppliers(ck.CTkFrame):
 
         self.delete_button2 = ck.CTkButton(button_frame, text="حذف",height=20,fg_color="red", command=self.delete_item,font=ck.CTkFont(size=16,weight="bold"))
         self.delete_button2.grid(row=0, column=3, padx=10)
+
+        self.ret_button = ck.CTkButton(self.detial_frame, text="رجوع",height=20,fg_color="red", command=self.ret,font=ck.CTkFont(size=16,weight="bold"))
+        self.ret_button.pack(pady=20)
 
         self.detial_button2.configure(state="disabled")
         self.edit_button2.configure(state="disabled")
@@ -428,4 +427,8 @@ class Suppliers(ck.CTkFrame):
             messagebox.showwarning("Warning Message","حركة خاطئة",icon="warning")
             return False
         
-        
+    def ret(self):
+        self.detial_frame.grid_forget()
+        self.main_frame.grid(row=0, column=0)
+
+
