@@ -6,8 +6,23 @@ import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
 from db import mycursor,mydb
-import mysql.connector
 from pygame import mixer
+
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import arabic_reshaper
+from bidi.algorithm import get_display
+from reportlab.pdfgen import canvas
+from datetime import datetime
+
+import webbrowser
+import os
+import sys
+import subprocess
+import webbrowser
 
 
 class Obligations(ck.CTkFrame):
@@ -20,10 +35,11 @@ class Obligations(ck.CTkFrame):
         self.tr_img= ck.CTkImage(Image.open("imags/delivery-truck.png"),size=(50,50))
         self.emp_img= ck.CTkImage(Image.open("imags/employees.png"),size=(50,50))
         self.other_img= ck.CTkImage(Image.open("imags/bill.png"),size=(50,50))
+        self.print_img= ck.CTkImage(Image.open("imags/printer.png"),size=(50,50))
 
         self.block_image = ck.CTkImage(Image.open("imags/debitt.png"),size=(40,40))
         self.main_frame = ck.CTkFrame(self,fg_color="transparent")
-        self.main_frame.grid(row=0, column=0)
+        self.main_frame.grid(row=0, column=0,pady=60)
         self.label = ck.CTkLabel(self.main_frame, text="التزامات  ",corner_radius=20,height=50,image=self.block_image,compound="right",font=ck.CTkFont(size=30,weight="bold")) 
         self.label.pack(pady=5)
         self.menu_frame = ck.CTkFrame(self.main_frame,fg_color="transparent")
@@ -36,14 +52,17 @@ class Obligations(ck.CTkFrame):
         self.elc_btn = ck.CTkButton(self.menu_frame,image=self.elc_img,width=400, text="فواتير الكهرباء",font=ck.CTkFont(size=20,weight="bold"),command=self.elc_page)
         self.elc_btn.pack(padx=10, pady=5)
 
-        self.wat_btn = ck.CTkButton(self.menu_frame,image=self.wat_img,width=400, text="فواتير المياه",font=ck.CTkFont(size=20,weight="bold"))
+        self.wat_btn = ck.CTkButton(self.menu_frame,image=self.wat_img,width=400, text="فواتير المياه",font=ck.CTkFont(size=20,weight="bold") ,command=self.wat_page)
         self.wat_btn.pack(padx=10, pady=5)
 
-        self.tr_btn = ck.CTkButton(self.menu_frame,image=self.tr_img,width=400, text="فواتير النقل",font=ck.CTkFont(size=20,weight="bold"))
+        self.tr_btn = ck.CTkButton(self.menu_frame,image=self.tr_img,width=400, text="فواتير النقل",font=ck.CTkFont(size=20,weight="bold"),command=self.tr_page)
         self.tr_btn.pack(padx=10, pady=5)
 
-        self.other_btn = ck.CTkButton(self.menu_frame,image=self.other_img,width=400, text="فواتير اخرى",font=ck.CTkFont(size=20,weight="bold"))
+        self.other_btn = ck.CTkButton(self.menu_frame,image=self.other_img,width=400, text="فواتير اخرى",font=ck.CTkFont(size=20,weight="bold"),command=self.ot_page)
         self.other_btn.pack(padx=10, pady=5)
+
+        self.print_btn = ck.CTkButton(self.menu_frame,image=self.print_img,width=400, text=" طباعه تقرير الالتزامات",font=ck.CTkFont(size=20,weight="bold"))
+        self.print_btn.pack(padx=10, pady=100)
 
     def ret(self):
         if hasattr(self, 'elc_frame'):
@@ -52,10 +71,20 @@ class Obligations(ck.CTkFrame):
         if hasattr(self, 'emp_frame'):
             self.emp_frame.grid_forget()
             del self.emp_frame
-        # if(self.elc_frame):
-        #     self.elc_frame.grid_forget()
+        if hasattr(self, 'wat_frame'):
+            self.wat_frame.grid_forget()
+            del self.wat_frame
+        if hasattr(self, 'tr_frame'):
+            self.tr_frame.grid_forget()
+            del self.tr_frame
+        if hasattr(self, 'ot_frame'):
+            self.ot_frame.grid_forget()
+            del self.ot_frame
 
         self.main_frame.grid(row=0, column=0)
+
+
+
 
     def emp_page(self):
         self.main_frame.grid_forget()
@@ -95,14 +124,14 @@ class Obligations(ck.CTkFrame):
         self.add_button = ck.CTkButton(button_frame, text=" اضافة موظف جديد",height=30,font=ck.CTkFont(size=20,weight="bold"),command=self.add_emp)
         self.add_button.grid(row=0, column=0, padx=10)
 
-        self.delete_button = ck.CTkButton(button_frame, state="disabled", text=" حذف موظف ",height=30,command=self.del_emp,font=ck.CTkFont(size=20,weight="bold"),fg_color="red",)
-        self.delete_button.grid(row=0, column=1, padx=10)
+        self.delete_emp_button = ck.CTkButton(button_frame, state="disabled", text=" حذف موظف ",height=30,command=self.del_emp,font=ck.CTkFont(size=20,weight="bold"),fg_color="red",)
+        self.delete_emp_button.grid(row=0, column=1, padx=10)
 
-        self.edit_button = ck.CTkButton(button_frame,state="disabled", text=" تعديل موظف ",height=30,command=self.edit_emp,font=ck.CTkFont(size=20,weight="bold"))
-        self.edit_button.grid(row=0, column=2, padx=10)
+        self.edit_emp_button = ck.CTkButton(button_frame,state="disabled", text=" تعديل موظف ",height=30,command=self.edit_emp,font=ck.CTkFont(size=20,weight="bold"))
+        self.edit_emp_button.grid(row=0, column=2, padx=10)
 
-        self.pay_button = ck.CTkButton(button_frame,state="disabled", text="دفع راتب",height=30,command=self.pay_emp,fg_color="green",font=ck.CTkFont(size=20,weight="bold") )
-        self.pay_button.grid(row=0, column=3, padx=10 )
+        self.pay_emp_button = ck.CTkButton(button_frame,state="disabled", text="دفع راتب",height=30,command=self.pay_emp,fg_color="green",font=ck.CTkFont(size=20,weight="bold") )
+        self.pay_emp_button.grid(row=0, column=3, padx=10 )
 
         s_btn_frame= ck.CTkFrame(self.emp_frame,fg_color="transparent")
         s_btn_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
@@ -360,13 +389,15 @@ class Obligations(ck.CTkFrame):
     def on_emp_select(self,event):
         selected_item = self.emp_table.focus()
         if selected_item:
-                self.pay_button.configure(state="normal")
-                self.delete_button.configure(state="normal")
-                self.edit_button.configure(state="normal")
+                self.pay_emp_button.configure(state="normal")
+                self.delete_emp_button.configure(state="normal")
+                self.edit_emp_button.configure(state="normal")
         else :
-            self.pay_button.configure(state="disabled")
-            self.delete_button.configure(state="disabled")
-            self.edit_button.configure(state="disabled")
+            self.pay_emp_button.configure(state="disabled")
+            self.delete_emp_button.configure(state="disabled")
+            self.edit_emp_button.configure(state="disabled")
+
+
 
 
     def elc_page(self):
@@ -414,7 +445,7 @@ class Obligations(ck.CTkFrame):
             self.intelcTable()
         
         new_window = tk.Toplevel(self)
-        new_window.geometry("340x300")
+        new_window.geometry("440x300")
         new_window.title('اضافة فاتوره')
 
         self.label = ck.CTkLabel(new_window, text='اضافة فاتوره',corner_radius=20,height=50,text_color="red",font=ck.CTkFont(size=30,weight="bold") ) 
@@ -434,6 +465,8 @@ class Obligations(ck.CTkFrame):
         add_btn.pack(padx=10,pady=10)
 
     def intelcTable(self):
+        for row in self.his_elc_table.get_children():
+            self.his_elc_table.delete(row)
         mycursor.execute("SELECT BID ,date, amount FROM elc_bills ")
         hiss = mycursor.fetchall()
         for his in hiss:
@@ -441,3 +474,247 @@ class Obligations(ck.CTkFrame):
 
 
                 
+
+    def wat_page(self):
+        self.main_frame.grid_forget()
+        self.wat_frame =ck.CTkFrame(self,fg_color="transparent")
+        self.wat_frame.grid(row=0, column=0)
+        self.label = ck.CTkLabel(self.wat_frame, text="فواتير المياه  ",corner_radius=20,height=50,image=self.wat_img,compound="right",font=ck.CTkFont(size=30,weight="bold")) 
+        self.label.pack(pady=5)
+
+
+        columns = ('billid','date','amount')
+        self.his_wat_table = ttk.Treeview(self.wat_frame ,columns=columns,height=14,selectmode='browse',show='headings')
+
+        self.his_wat_table.column("#1", anchor="c", minwidth=100, width=100)
+        self.his_wat_table.column("#2", anchor="c", minwidth=200, width=200)
+        self.his_wat_table.column("#3", anchor="c", minwidth=100, width=100)
+        
+
+        self.his_wat_table.heading('billid', text='رقم الفاتوره')
+        self.his_wat_table.heading('date', text='التاريخ')
+        self.his_wat_table.heading('amount', text='المبلغ')
+        self.his_wat_table.pack(padx=30,pady=10)
+
+        
+
+        self.his_wat_table.bind('<Motion>', 'break')
+        self.intwatTable()
+        add_btn = ck.CTkButton(self.wat_frame , text="اضافه فاتوره",command=self.add_wat_bill)
+        add_btn.pack(pady=10,padx=10)
+        ret_btn = ck.CTkButton(self.wat_frame , text=" رجوع",fg_color="red",command=self.ret)
+        ret_btn.pack(pady=10,padx=10)
+    
+    def add_wat_bill(self):
+        def add():
+            if (not self.entry.get() or not self.entry.get().isdigit() ):
+                mixer.music.load("sounds/error.mp3")
+                mixer.music.play()
+                messagebox.showwarning("Warning Message","قيم الإدخال غير صحيح",icon="warning")
+                self.amount.delete(0,'end')
+                self.amount.insert(0, "1")
+            insert_query = "INSERT INTO wat_bills (date,amount) VALUES (%s,%s)"
+            order_data = (datetime.now(),self.entry.get())  
+            mycursor.execute(insert_query, order_data)
+            mydb.commit() 
+            self.intwatTable()
+        
+        new_window = tk.Toplevel(self)
+        new_window.geometry("440x300")
+        new_window.title('اضافة فاتوره')
+
+        self.label = ck.CTkLabel(new_window, text='اضافة فاتوره',corner_radius=20,height=50,text_color="red",font=ck.CTkFont(size=30,weight="bold") ) 
+        self.label.pack(pady=5)
+
+
+        center_x = int(750)
+        center_y = int(350)
+        new_window.geometry(f"+{center_x}+{center_y}")
+
+        label1 = ck.CTkLabel(new_window,width=200,text="المبلغ:",font=ck.CTkFont(size=21,weight="bold"))
+        label1.pack(padx=10, pady=10)
+
+        self.entry = ck.CTkEntry(new_window,width=200)
+        self.entry.pack(padx=10, pady=10)
+        add_btn = ck.CTkButton(new_window, text="اضافه" , command=add)
+        add_btn.pack(padx=10,pady=10)
+
+    def intwatTable(self):
+        for row in self.his_wat_table.get_children():
+            self.his_wat_table.delete(row)
+        mycursor.execute("SELECT BID ,date, amount FROM wat_bills ")
+        hiss = mycursor.fetchall()
+        for his in hiss:
+                self.his_wat_table.insert('','end',values=(his))
+
+
+                
+
+                
+    def ot_page(self):
+        self.main_frame.grid_forget()
+        self.ot_frame =ck.CTkFrame(self,fg_color="transparent")
+        self.ot_frame.grid(row=0, column=0)
+        self.label = ck.CTkLabel(self.ot_frame, text="فواتير اخرى  ",corner_radius=20,height=50,image=self.other_img,compound="right",font=ck.CTkFont(size=30,weight="bold")) 
+        self.label.pack(pady=5)
+
+
+        columns = ('billid','des','date','amount')
+        self.his_ot_table = ttk.Treeview(self.ot_frame ,columns=columns,height=14,selectmode='browse',show='headings')
+
+        self.his_ot_table.column("#1", anchor="c", minwidth=100, width=100)
+        self.his_ot_table.column("#2", anchor="c", minwidth=300, width=300)
+        self.his_ot_table.column("#3", anchor="c", minwidth=200, width=200)
+        self.his_ot_table.column("#4", anchor="c", minwidth=100, width=100)
+        
+
+        self.his_ot_table.heading('billid', text='رقم الفاتوره')
+        self.his_ot_table.heading('des', text='عنوان ')
+        self.his_ot_table.heading('date', text='التاريخ')
+        self.his_ot_table.heading('amount', text='المبلغ')
+        self.his_ot_table.pack(padx=30,pady=10)
+
+        
+
+        self.his_ot_table.bind('<Motion>', 'break')
+        self.intotTable()
+        add_btn = ck.CTkButton(self.ot_frame , text="اضافه فاتوره",command=self.add_ot_bill)
+        add_btn.pack(pady=10,padx=10)
+        ret_btn = ck.CTkButton(self.ot_frame , text=" رجوع",fg_color="red",command=self.ret)
+        ret_btn.pack(pady=10,padx=10)
+    
+    def add_ot_bill(self):
+        def add():
+            if (not self.entry.get() or not self.entry.get().isdigit() ):
+                mixer.music.load("sounds/error.mp3")
+                mixer.music.play()
+                messagebox.showwarning("Warning Message","قيم الإدخال غير صحيح",icon="warning")
+                self.amount.delete(0,'end')
+                self.amount.insert(0, "1")
+            insert_query = "INSERT INTO ot_bills (date,amount,title) VALUES (%s,%s,%s)"
+            order_data = (datetime.now(),self.entry.get(),self.entry2.get())  
+            mycursor.execute(insert_query, order_data)
+            mydb.commit() 
+            self.intotTable()
+        
+        new_window = tk.Toplevel(self)
+        new_window.geometry("440x500")
+        new_window.title('اضافة فاتوره')
+
+        self.label = ck.CTkLabel(new_window, text='اضافة فاتوره',corner_radius=20,height=50,text_color="red",font=ck.CTkFont(size=30,weight="bold") ) 
+        self.label.pack(pady=5)
+
+
+        center_x = int(750)
+        center_y = int(350)
+        new_window.geometry(f"+{center_x}+{center_y}")
+
+
+        label2 = ck.CTkLabel(new_window,width=200,text="عنوان:",font=ck.CTkFont(size=21,weight="bold"))
+        label2.pack(padx=10, pady=10)
+
+        self.entry2 = ck.CTkEntry(new_window,width=200)
+        self.entry2.pack(padx=10, pady=10)
+
+
+        label1 = ck.CTkLabel(new_window,width=200,text="المبلغ:",font=ck.CTkFont(size=21,weight="bold"))
+        label1.pack(padx=10, pady=10)
+
+        self.entry = ck.CTkEntry(new_window,width=200)
+        self.entry.pack(padx=10, pady=10)
+
+        add_btn = ck.CTkButton(new_window, text="اضافه" , command=add)
+        add_btn.pack(padx=10,pady=10)
+
+    def intotTable(self):
+        for row in self.his_ot_table.get_children():
+            self.his_ot_table.delete(row)
+        mycursor.execute("SELECT BID,title ,date, amount FROM ot_bills ")
+        hiss = mycursor.fetchall()
+        for his in hiss:
+                self.his_ot_table.insert('','end',values=(his))
+
+
+                
+                
+    def tr_page(self):
+        self.main_frame.grid_forget()
+        self.tr_frame =ck.CTkFrame(self,fg_color="transparent")
+        self.tr_frame.grid(row=0, column=0)
+        self.label = ck.CTkLabel(self.tr_frame, text="فواتير النقل  ",corner_radius=20,height=50,image=self.tr_img,compound="right",font=ck.CTkFont(size=30,weight="bold")) 
+        self.label.pack(pady=5)
+
+
+        columns = ('billid','des','date','amount')
+        self.his_tr_table = ttk.Treeview(self.tr_frame ,columns=columns,height=14,selectmode='browse',show='headings')
+
+        self.his_tr_table.column("#1", anchor="c", minwidth=100, width=100)
+        self.his_tr_table.column("#2", anchor="c", minwidth=300, width=300)
+        self.his_tr_table.column("#3", anchor="c", minwidth=200, width=200)
+        self.his_tr_table.column("#4", anchor="c", minwidth=100, width=100)
+        
+
+        self.his_tr_table.heading('billid', text='رقم الفاتوره')
+        self.his_tr_table.heading('des', text='وصف ')
+        self.his_tr_table.heading('date', text='التاريخ')
+        self.his_tr_table.heading('amount', text='المبلغ')
+        self.his_tr_table.pack(padx=30,pady=10)
+
+        
+
+        self.his_tr_table.bind('<Motion>', 'break')
+        self.inttrTable()
+        add_btn = ck.CTkButton(self.tr_frame , text="اضافه فاتوره",command=self.add_tr_bill)
+        add_btn.pack(pady=10,padx=10)
+        ret_btn = ck.CTkButton(self.tr_frame , text=" رجوع",fg_color="red",command=self.ret)
+        ret_btn.pack(pady=10,padx=10)
+    
+    def add_tr_bill(self):
+        def add():
+            if (not self.entry.get() or not self.entry.get().isdigit() ):
+                mixer.music.load("sounds/error.mp3")
+                mixer.music.play()
+                messagebox.showwarning("Warning Message","قيم الإدخال غير صحيح",icon="warning")
+                self.amount.delete(0,'end')
+                self.amount.insert(0, "1")
+            insert_query = "INSERT INTO tr_bills (date,amount,des) VALUES (%s,%s,%s)"
+            order_data = (datetime.now(),self.entry.get(),self.entry2.get())  
+            mycursor.execute(insert_query, order_data)
+            mydb.commit() 
+            self.inttrTable()
+        
+        new_window = tk.Toplevel(self)
+        new_window.geometry("440x500")
+        new_window.title('اضافة فاتوره')
+
+        self.label = ck.CTkLabel(new_window, text='اضافة فاتوره',corner_radius=20,height=50,text_color="red",font=ck.CTkFont(size=30,weight="bold") ) 
+        self.label.pack(pady=5)
+
+
+        center_x = int(750)
+        center_y = int(350)
+        new_window.geometry(f"+{center_x}+{center_y}")
+
+        label1 = ck.CTkLabel(new_window,width=200,text="المبلغ:",font=ck.CTkFont(size=21,weight="bold"))
+        label1.pack(padx=10, pady=10)
+
+        self.entry = ck.CTkEntry(new_window,width=200)
+        self.entry.pack(padx=10, pady=10)
+
+        label2 = ck.CTkLabel(new_window,width=200,text="الوصف:",font=ck.CTkFont(size=21,weight="bold"))
+        label2.pack(padx=10, pady=10)
+
+        self.entry2 = ck.CTkEntry(new_window,width=200)
+        self.entry2.pack(padx=10, pady=10)
+
+        add_btn = ck.CTkButton(new_window, text="اضافه" , command=add)
+        add_btn.pack(padx=10,pady=10)
+
+    def inttrTable(self): 
+        for row in self.his_tr_table.get_children():
+            self.his_tr_table.delete(row)
+
+        mycursor.execute("SELECT BID,des ,date, amount FROM tr_bills ")
+        hiss = mycursor.fetchall()
+        for his in hiss:
+                self.his_tr_table.insert('','end',values=(his))
