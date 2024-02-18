@@ -135,3 +135,28 @@ Add COLUMN Unit VARCHAR(20);
 ------------
 ALTER TABLE orders 
 CHANGE COLUMN  remainAmount remainAmount DECIMAL(10,2)  DEFAULT 0 ;
+
+
+=========================
+create table employee(
+EID int auto_increment primary key ,
+name varchar(100) ,
+salary double,
+phone varchar(50) ,
+lastSalary date ,
+des varchar(250)
+);
+
+create table  emp_bills (
+BID int auto_increment primary key,
+date date,
+amount double,
+EID int,
+FOREIGN KEY (EID) REFERENCES employee(EID) ON DELETE SET NULL
+);
+
+create table  elc_bills (
+BID int auto_increment primary key,
+date date,
+amount double
+)
