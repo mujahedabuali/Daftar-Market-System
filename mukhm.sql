@@ -159,4 +159,30 @@ create table  elc_bills (
 BID int auto_increment primary key,
 date date,
 amount double
-)
+);
+create table  wat_bills (
+BID int auto_increment primary key,
+date date,
+amount double
+);
+
+create table  tr_bills (
+BID int auto_increment primary key,
+des varchar(250) default "-",
+date date,
+amount double
+);
+
+create table  ot_bills (
+BID int auto_increment primary key,
+title varchar(250) default "-",
+date date,
+amount double
+);
+
+ALTER TABLE employee
+CHANGE COLUMN phone phone  VARCHAR(50)  DEFAULT '-' ,
+CHANGE COLUMN des des VARCHAR(250)  DEFAULT '-' ;
+
+
+Drop table obligations;
