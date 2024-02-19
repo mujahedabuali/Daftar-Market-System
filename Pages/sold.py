@@ -26,31 +26,37 @@ class Sold(ck.CTkFrame):
     def __init__(self, parent,login_page_instance):
         super().__init__(parent, corner_radius=0, fg_color="transparent")
         self.grid_columnconfigure(0, weight=10)
+    
+        self.tabview = ck.CTkTabview(self, width=1200)
+        self.tabview.grid(pady=(20, 0))
+        self.tabview.add("مبيعات")
+        self.tabview.add("زبائن")
+        self.tabview.tab("مبيعات").grid_columnconfigure(0, weight=1)  
+        self.tabview.tab("زبائن").grid_columnconfigure(0, weight=1)
 
-        self.bookmark_image = ck.CTkImage(Image.open("imags/sold.png"),size=(40,40))
-        self.label = ck.CTkLabel(self, text="مبيعات ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
-        self.label.pack(pady=5)
-        
-
-        self.search_entry = ck.CTkEntry(self,placeholder_text="search")
+        self.search_entry = ck.CTkEntry(self.tabview.tab("مبيعات"),placeholder_text="search")
         self.search_entry.pack(pady=10)
         self.search_entry.bind("<KeyRelease>", self.search)
         
-        columns = ("id","name","date","total","payed","recive","remain")
-        self.table = ttk.Treeview(self,columns=columns,height=20, selectmode='browse',show='headings')
+        columns = ("id","name","date","total","discount","finalTotal","payed","recive","remain")
+        self.table = ttk.Treeview(self.tabview.tab("مبيعات"),columns=columns,height=20, selectmode='browse',show='headings')
 
         self.table.column("id", anchor="center",width=50,minwidth=50)
         self.table.column("name", anchor="center",width=250,minwidth=250)
         self.table.column("date", anchor="center",width=80, minwidth=80)
         self.table.column("total", anchor="center",width=80, minwidth=80)
+        self.table.column("discount", anchor="center",width=80, minwidth=80)
+        self.table.column("finalTotal", anchor="center",width=150, minwidth=150)
         self.table.column("payed", anchor="center",width=80, minwidth=80)
         self.table.column("recive", anchor="center",width=80, minwidth=80)
-        self.table.column("remain", anchor="center",width=100, minwidth=100)
+        self.table.column("remain", anchor="center",width=80, minwidth=80)
      
         self.table.heading('id', text='رمز الفاتورة ')
         self.table.heading('name', text='اسم الزبون')
         self.table.heading('date', text='تاريخ الطلبية')
         self.table.heading("total", text='قيمة الفاتورة')
+        self.table.heading("discount", text='خصم')
+        self.table.heading("finalTotal", text='المجموع')
         self.table.heading("payed", text='الدفع')
         self.table.heading("recive", text='تسليم')
         self.table.heading("remain", text='الدفع المتبقي')
@@ -63,14 +69,9 @@ class Sold(ck.CTkFrame):
         style.map("Treeview", background=[('selected', '#347083')])
         style.configure("Treeview", highlightthickness=0, bd=0)
 
-
-        self.scrollbar = ck.CTkScrollbar(self, orientation=ck.VERTICAL, command=self.table.yview)
-        self.scrollbar.pack(side=ck.RIGHT, fill=ck.Y)
-
-        self.table.configure(yscrollcommand=self.scrollbar.set)
         self.table.pack(fill=ck.BOTH, expand=False,padx=15,pady=30)
 
-        button_frame = ck.CTkFrame(self,fg_color="transparent")
+        button_frame = ck.CTkFrame(self.tabview.tab("مبيعات"),fg_color="transparent")
         button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45) 
 
         self.detail_button = ck.CTkButton(button_frame, text="تفاصيل الفاتورة",height=30,command=self.show_detial,font=ck.CTkFont(size=20,weight="bold"))
@@ -85,13 +86,45 @@ class Sold(ck.CTkFrame):
 
         self.intTable()
 
+        ###### customers ######
+
+        self.search_entry2 = ck.CTkEntry(self.tabview.tab("زبائن"),placeholder_text="search")
+        self.search_entry2.pack(pady=10)
+        self.search_entry2.bind("<KeyRelease>", self.search)
+        
+        columns2 = ("id","name","phone")
+        self.table2 = ttk.Treeview(self.tabview.tab("زبائن"),columns=columns2,height=20, selectmode='browse',show='headings')
+
+        self.table2.column("id", anchor="center",width=50,minwidth=50)
+        self.table2.column("name", anchor="center",width=250,minwidth=250)
+        self.table2.column("phone", anchor="center",width=80, minwidth=80)
+    
+        self.table2.heading('id', text='رمز الزبون')
+        self.table2.heading('name', text='اسم الزبون')
+        self.table2.heading("phone", text='هاتف')
+
+        self.table2.bind('<Motion>','break')
+        self.table2.bind("<<TreeviewSelect>>", self.on_item_select2)
+
+        self.table2.pack(fill=ck.BOTH, expand=False,padx=15,pady=30)
+
+        button_frame2 = ck.CTkFrame(self.tabview.tab("زبائن"),fg_color="transparent")
+        button_frame2.pack(fill=ck.Y,expand=True,padx=15,pady=45) 
+
+        self.print_button2 = ck.CTkButton(button_frame2, text="كشف حساب",image=self.printIMG,compound="left",font=ck.CTkFont(size=20,weight="bold"),width=10,command=self.printAssist)
+        self.print_button2.pack(pady=15)
+        self.print_button2.configure(state="disabled")
+  
+
+        self.intTable2()
+
 
     def intTable(self):
 
         for row in self.table.get_children():
             self.table.delete(row)
 
-        mycursor.execute("SELECT OrderID,CustomerID,OrderDate,TotalAmount,Status,receive,remainAmount FROM Orders ORDER BY OrderID DESC")
+        mycursor.execute("SELECT * FROM Orders ORDER BY OrderID DESC")
         mysite = mycursor.fetchall()
 
 
@@ -99,9 +132,27 @@ class Sold(ck.CTkFrame):
             name =self.get_customer_name(site[1])
             status = " كامل" if site[4] == "1" else "ناقص"
             receive = "استلم" if site[5] == 1 else "لم يستلم"
-            remain ="-" if not site[6]else site[6]
-            site_with_name = (site[0],name, site[2], site[3], status, receive,remain)
+            remain ="-" if (not site[6] or site[6] == 0.00) else site[6]
+            site_with_name = (site[0],name, site[2],site[3],site[7],site[8], status, receive,remain)
             self.table.insert('','end',values=(site_with_name))
+
+    def intTable2(self):
+
+        for row in self.table2.get_children():
+            self.table2.delete(row)
+
+        sql_query = """
+                    SELECT *
+                    FROM Customers
+                    Order by CustomerID Asc;
+                """
+
+        mycursor.execute(sql_query)
+
+        results = mycursor.fetchall()
+
+        for site in results:
+            self.table2.insert('','end',values=(site))
 
     def search(self, event):
         search_query = self.search_entry.get().lower()
@@ -203,6 +254,12 @@ class Sold(ck.CTkFrame):
 
         date_var = tk.StringVar()
         date_var.set(values[2])  
+
+        discont = tk.StringVar()
+        discont.set(values[4])  
+
+        totalAfter = tk.StringVar()
+        totalAfter.set(values[5])  
         
         labelFrame =ck.CTkFrame(new_window,fg_color="transparent")
         labelFrame.pack(padx=15,pady=25)
@@ -210,11 +267,17 @@ class Sold(ck.CTkFrame):
         label1 = ck.CTkLabel(labelFrame,width=200,text="الاسم: " +name_var.get() ,font=ck.CTkFont(size=19,weight="bold"))
         label1.grid(row=0, column=2, padx=10)
 
-        label2 = ck.CTkLabel(labelFrame,width=200,text=" مجموع الفاتورة: "+total_var.get(),font=ck.CTkFont(size=19,weight="bold"))
+        label2 = ck.CTkLabel(labelFrame,width=200,text="قيمة الفاتورة الاصلية: "+total_var.get(),font=ck.CTkFont(size=19,weight="bold"))
         label2.grid(row=0, column=1, padx=10)
 
         label3 = ck.CTkLabel(labelFrame,width=200,text="تاريخ : "+date_var.get(),font=ck.CTkFont(size=19,weight="bold"))
         label3.grid(row=0, column=0, padx=10)
+
+        label4 = ck.CTkLabel(labelFrame,width=200,text="المجموع: " +totalAfter.get() ,text_color="green",font=ck.CTkFont(size=19,weight="bold"))
+        label4.grid(row=1, column=1, padx=10,pady=10)
+
+        label5 = ck.CTkLabel(labelFrame,width=200,text="خصم: "+discont.get(),font=ck.CTkFont(size=19,weight="bold"))
+        label5.grid(row=1, column=2, padx=10,pady=10)
         
         
         table.pack(pady=20)
@@ -244,7 +307,14 @@ class Sold(ck.CTkFrame):
                 self.detail_button.configure(state="normal")
                 self.print_button.configure(state="normal")
         else :
-                self.print_button.configure(state="disabled")    
+                self.print_button.configure(state="disabled")  
+
+    def on_item_select2(self,event):
+        selected_item = self.table2.focus()
+        if selected_item:
+                self.print_button2.configure(state="normal")
+        else :
+                self.print_button2.configure(state="disabled")    
 
 
     def printAssist(self):

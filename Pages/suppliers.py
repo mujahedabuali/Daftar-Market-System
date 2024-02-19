@@ -323,86 +323,90 @@ class Suppliers(ck.CTkFrame):
              messagebox.showwarning("Warning Message","اختر عنصرًا",icon="warning")
 
     def show_detial_info(self):
+
+        self.grid_remove()
+        self.spliPage2=Suppliers2(self,"self.loginPage")
+        self.spliPage2.grid(row=0, column=1, sticky="nsew") 
         
-        new_window = tk.Toplevel(self)
-        new_window.geometry("760x660")
-        new_window.title('Daftar Application')
+    #     new_window = tk.Toplevel(self)
+    #     new_window.geometry("760x660")
+    #     new_window.title('Daftar Application')
         
 
-        center_x = int(580)
-        center_y = int(150)
-        new_window.geometry(f"+{center_x}+{center_y}")
+    #     center_x = int(580)
+    #     center_y = int(150)
+    #     new_window.geometry(f"+{center_x}+{center_y}")
 
-        label = ck.CTkLabel(new_window,width=200,text="تفاصيل" ,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold"))
-        label.pack(pady=10)
+    #     label = ck.CTkLabel(new_window,width=200,text="تفاصيل" ,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold"))
+    #     label.pack(pady=10)
        
         
-        selected_item = self.table.focus()
-        values =  self.table.item(selected_item, 'values')
+    #     selected_item = self.table.focus()
+    #     values =  self.table.item(selected_item, 'values')
 
-        columns = ("id","total","date")
-        self.table2 = ttk.Treeview(new_window,columns=columns,height=12, selectmode='browse',show='headings')
+    #     columns = ("id","total","date")
+    #     self.table2 = ttk.Treeview(new_window,columns=columns,height=12, selectmode='browse',show='headings')
 
-        self.table2.column("id", anchor="center",width=110,minwidth=110)
-        self.table2.column("total", anchor="center",width=110, minwidth=110)
-        self.table2.column("date", anchor="center",width=110, minwidth=110)
+    #     self.table2.column("id", anchor="center",width=110,minwidth=110)
+    #     self.table2.column("total", anchor="center",width=110, minwidth=110)
+    #     self.table2.column("date", anchor="center",width=110, minwidth=110)
      
-        self.table2.heading('id', text='رمز فاتورة الشراء')
-        self.table2.heading("total", text='مجموع')
-        self.table2.heading('date', text='التاريخ')
+    #     self.table2.heading('id', text='رمز فاتورة الشراء')
+    #     self.table2.heading("total", text='مجموع')
+    #     self.table2.heading('date', text='التاريخ')
 
-        self.table2.bind('<Motion>','break')
+    #     self.table2.bind('<Motion>','break')
 
-        name_var = tk.StringVar()
-        name_var.set(values[1])   
+    #     name_var = tk.StringVar()
+    #     name_var.set(values[1])   
         
-        labelFrame =ck.CTkFrame(new_window,fg_color="transparent")
-        labelFrame.pack(padx=15,pady=25)
+    #     labelFrame =ck.CTkFrame(new_window,fg_color="transparent")
+    #     labelFrame.pack(padx=15,pady=25)
 
-        label1 = ck.CTkLabel(labelFrame,width=200,text="الاسم: " +name_var.get() ,font=ck.CTkFont(size=19,weight="bold"))
-        label1.grid(row=0, column=2, padx=10)
+    #     label1 = ck.CTkLabel(labelFrame,width=200,text="الاسم: " +name_var.get() ,font=ck.CTkFont(size=19,weight="bold"))
+    #     label1.grid(row=0, column=2, padx=10)
         
-        self.table2.pack(pady=20)
+    #     self.table2.pack(pady=20)
 
-        button_frame = ck.CTkFrame(new_window,fg_color="transparent")
-        button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
+    #     button_frame = ck.CTkFrame(new_window,fg_color="transparent")
+    #     button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
 
-        self.detial_button2 = ck.CTkButton(button_frame, text="تفاصيل",fg_color="green",height=20,command=self.show_detial,font=ck.CTkFont(size=16,weight="bold"))
-        self.detial_button2.grid(row=0, column=0, padx=10)
+    #     self.detial_button2 = ck.CTkButton(button_frame, text="تفاصيل",fg_color="green",height=20,command=self.show_detial,font=ck.CTkFont(size=16,weight="bold"))
+    #     self.detial_button2.grid(row=0, column=0, padx=10)
         
-        self.add_button2 = ck.CTkButton(button_frame, text="اضافة فاتورة مشتريات",height=20,command=self.add_data,font=ck.CTkFont(size=16,weight="bold"))
-        self.add_button2.grid(row=0, column=1, padx=10)
+    #     self.add_button2 = ck.CTkButton(button_frame, text="اضافة فاتورة مشتريات",height=20,command=self.add_data,font=ck.CTkFont(size=16,weight="bold"))
+    #     self.add_button2.grid(row=0, column=1, padx=10)
 
-        self.edit_button2 = ck.CTkButton(button_frame, text="تعديل",height=20,command=self.edit_item,font=ck.CTkFont(size=16,weight="bold"))
-        self.edit_button2.grid(row=0, column=2, padx=10)
+    #     self.edit_button2 = ck.CTkButton(button_frame, text="تعديل",height=20,command=self.edit_item,font=ck.CTkFont(size=16,weight="bold"))
+    #     self.edit_button2.grid(row=0, column=2, padx=10)
 
-        self.delete_button2 = ck.CTkButton(button_frame, text="حذف",height=20,fg_color="red", command=self.delete_item,font=ck.CTkFont(size=16,weight="bold"))
-        self.delete_button2.grid(row=0, column=3, padx=10)
+    #     self.delete_button2 = ck.CTkButton(button_frame, text="حذف",height=20,fg_color="red", command=self.delete_item,font=ck.CTkFont(size=16,weight="bold"))
+    #     self.delete_button2.grid(row=0, column=3, padx=10)
 
-        self.detial_button2.configure(state="disabled")
-        self.edit_button2.configure(state="disabled")
-        self.delete_button2.configure(state="disabled")       
+    #     self.detial_button2.configure(state="disabled")
+    #     self.edit_button2.configure(state="disabled")
+    #     self.delete_button2.configure(state="disabled")       
 
-        self.intTable2()
+    #     self.intTable2()
 
 
-    def intTable2(self):
-        for row in self.table2.get_children():
-            self.table2.delete(row)
+    # def intTable2(self):
+    #     for row in self.table2.get_children():
+    #         self.table2.delete(row)
 
-        sql_query = """
-                    SELECT Products.ProductID, Products.ProductName, Products.sell_Price ,OrderDetails.Quantity,OrderDetails.Subtotal
-                    FROM Orders
-                    JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
-                    JOIN Products ON OrderDetails.ProductID = Products.ProductID
-                    WHERE Orders.OrderID = %s;
-                """
+    #     sql_query = """
+    #                 SELECT Products.ProductID, Products.ProductName, Products.sell_Price ,OrderDetails.Quantity,OrderDetails.Subtotal
+    #                 FROM Orders
+    #                 JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+    #                 JOIN Products ON OrderDetails.ProductID = Products.ProductID
+    #                 WHERE Orders.OrderID = %s;
+    #             """
 
-        # mycursor.execute(sql_query, (values[0],))
-        results = mycursor.fetchall()
+    #     # mycursor.execute(sql_query, (values[0],))
+    #     results = mycursor.fetchall()
 
-        for site in results:
-            self.table2.insert('','end',values=(site))
+    #     for site in results:
+    #         self.table2.insert('','end',values=(site))
 
     def on_item_select(self,event):
         selected_item = self.table.focus()
@@ -428,4 +432,38 @@ class Suppliers(ck.CTkFrame):
             messagebox.showwarning("Warning Message","حركة خاطئة",icon="warning")
             return False
         
+class Suppliers2(ck.CTkFrame):
+    def __init__(self, parent,login_page_instance):
+        super().__init__(parent, corner_radius=0, fg_color="transparent")
+        self.grid_columnconfigure(0, weight=10)
+
+        self.bookmark_image = ck.CTkImage(Image.open("imags/delivery-courier.png"),size=(40,40))
+        self.label = ck.CTkLabel(self, text="المزودين ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
+        self.label.pack(pady=5)
         
+
+        self.search_entry = ck.CTkEntry(self,placeholder_text="search")
+        self.search_entry.pack(pady=10)
+        self.search_entry.bind("<KeyRelease>", self.search)
+
+        columns = ('id','name', 'phone')
+
+        self.table = ttk.Treeview(self,
+                              columns=columns,
+                              height=16,
+                              selectmode='browse',
+                              show='headings')
+
+        self.table.column("#1", anchor="c", minwidth=100, width=100)
+        self.table.column("#2", anchor="c", minwidth=220, width=220)
+        self.table.column("#3", anchor="c", minwidth=100, width=100)
+
+        self.table.heading('id', text='رمز المزود')
+        self.table.heading('name', text='اسم المزود')
+        self.table.heading('phone', text='هاتف')
+    
+
+        self.table.bind('<Motion>', 'break')
+        self.table.bind("<<TreeviewSelect>>", self.on_item_select)
+
+        self.table.pack(pady=15)

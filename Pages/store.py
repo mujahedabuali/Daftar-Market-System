@@ -259,6 +259,7 @@ class Store(ck.CTkFrame):
             else:
                     mixer.music.load("sounds/done.wav")
                     mixer.music.play()
+                    self.convert_arabic_to_english(entry)
 
                     update_query = "UPDATE Products SET StockQuantity = %s WHERE ProductID=%s"
                     mycursor.execute(update_query, (float(entry.get())+float(self.entry2.get()),values[0]))
@@ -317,6 +318,7 @@ class Store(ck.CTkFrame):
 
         label = ck.CTkLabel(inc_frame,text="+",font=ck.CTkFont(size=15,weight="bold"))
         label.grid(row=0, column=0)
+
         
         ok_button = ck.CTkButton(new_window, text="إضافة", command=get)
         ok_button.pack(padx=10, pady=10)
@@ -332,7 +334,9 @@ class Store(ck.CTkFrame):
 
     def edit_window(self):
 
-        def get(type,text,window):
+        def get(type,text0,window):
+
+            text=self.convert_arabic_to_english2(text0)
 
             if type == "name":
                 if (not text):
@@ -361,6 +365,7 @@ class Store(ck.CTkFrame):
                     mixer.music.play()
                     messagebox.showwarning("Warning Message","قم بادخال قيم صحيحة",icon="warning")
                     return
+                
                 
                 update_query = "UPDATE Products SET sell_Price = %s WHERE ProductID=%s"
                 mycursor.execute(update_query, (text,values[0]))
@@ -1057,3 +1062,26 @@ class Store(ck.CTkFrame):
 
         entry.delete(0,"end")
         entry.insert(0,entry_value)
+
+    def convert_arabic_to_english2(self,text):
+        arabic_to_english = {
+            '٠': '0',
+            '١': '1',
+            '٢': '2',
+            '٣': '3',
+            '٤': '4',
+            '٥': '5',
+            '٦': '6',
+            '٧': '7',
+            '٨': '8',
+            '٩': '9'
+        }
+
+        entry_value = text
+
+        for arabic_digit, english_digit in arabic_to_english.items():
+            entry_value = entry_value.replace(arabic_digit, english_digit)
+
+        text1=entry_value
+        return text1
+

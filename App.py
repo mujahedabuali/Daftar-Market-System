@@ -46,26 +46,26 @@ class menuFrame(customtkinter.CTkFrame):
         self.page4_button.grid(row=3, column=0, sticky="ew")
 
 
-        self.sold_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="مبيعات  ", image=self.soldIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=sold)
-        self.sold_button.grid(row=4, column=0, sticky="ew")
+        self.sold_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=15, weight="bold"),border_spacing=10, text="المبيعات والزبائن", image=self.soldIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=sold)
+        self.sold_button.grid(row=10, column=0, sticky="ew")
 
         self.record_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="السجل  ", image=self.recordIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=record)
-        self.record_button.grid(row=5, column=0, sticky="ew")
+        self.record_button.grid(row=4, column=0, sticky="ew")
 
         self.orders_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="طلبيات  ", image=self.ordersIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=order)
-        self.orders_button.grid(row=6, column=0, sticky="ew")
+        self.orders_button.grid(row=5, column=0, sticky="ew")
 
         self.return_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="ارجاعيات  ", image=self.returnIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=Xreturn)
-        self.return_button.grid(row=7, column=0, sticky="ew")
+        self.return_button.grid(row=6, column=0, sticky="ew")
 
         self.oblig_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="التزامات  ", image=self.payIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=oblig)
-        self.oblig_button.grid(row=8, column=0, sticky="ew")
+        self.oblig_button.grid(row=7, column=0, sticky="ew")
 
         self.suppliers_button = customtkinter.CTkButton(self, corner_radius=0, height=40, font=customtkinter.CTkFont(size=16, weight="bold"),border_spacing=10, text="المزودين  ", image=self.supliIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=supliers)
-        self.suppliers_button.grid(row=9, column=0, sticky="ew")
+        self.suppliers_button.grid(row=8, column=0, sticky="ew")
 
         self.page3_button = customtkinter.CTkButton(self, corner_radius=0, height=40, border_spacing=10,font=customtkinter.CTkFont(size=16, weight="bold"),text="حسابات", image=self.statsIMG, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=page3)
-        self.page3_button.grid(row=10, column=0, sticky="ew")
+        self.page3_button.grid(row=9, column=0, sticky="ew")
 
         self.setting_button = customtkinter.CTkButton(self, corner_radius=0, height=40,font=customtkinter.CTkFont(size=16, weight="bold"), border_spacing=10, text="الاعدادات",image=self.setting_image, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=setting)
         self.setting_button.grid(row=11, column=0, sticky="ew")

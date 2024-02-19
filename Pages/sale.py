@@ -45,7 +45,14 @@ class page4(ck.CTkFrame):
 
         self.totalPrice=ck.StringVar()
         self.totalPrice.set("المجموع : 0.00")
-        self.price_variabled=0.00
+        self.Origin_price_variabled=0.00
+
+        self.discontLabl="%0.00"
+        self.AfterDiscountVar=self.Origin_price_variabled
+
+        self.AfterDiscount=ck.StringVar()
+        self.AfterDiscount.set("المجموع : {:.2f}".format(float(self.AfterDiscountVar)))
+
 
         mixer.init()
 
@@ -127,7 +134,6 @@ class page4(ck.CTkFrame):
         self.table2.heading('unit', text='وحدة')
 
         self.table2.bind('<Motion>', 'break')
-        self.table2.bind("<<TreeviewSelect>>", self.on_item_select)
         self.table.bind("<<TreeviewSelect>>", self.on_item_select2)
 
 
@@ -141,12 +147,17 @@ class page4(ck.CTkFrame):
         add_frame = ck.CTkFrame(right_frame,fg_color="transparent")
         add_frame.pack(fill=ck.Y,expand=False,padx=15,pady=15)
 
+        self.nameAdded = ck.CTkLabel(add_frame,text="",text_color="#2e8fe7",corner_radius=20,height=20,font=ck.CTkFont(size=16,weight="bold"))
+        self.nameAdded.grid(row=0, column=0, padx=10,pady=10)
+
+        self.table2.bind("<<TreeviewSelect>>", self.on_item_select_and_update_name_added)
+
         self.add_button = ck.CTkButton(add_frame, text="إضافة",height=30,command=self.add_data,font=ck.CTkFont(size=20,weight="bold"))
         self.add_button.configure(state="disabled")
-        self.add_button.grid(row=1, column=0, padx=10)
+        self.add_button.grid(row=2, column=0, padx=10)
 
         self.cont_entry = ck.CTkEntry(add_frame)
-        self.cont_entry.grid(row=0, column=0, padx=10,pady=10)
+        self.cont_entry.grid(row=1, column=0, padx=10,pady=10)
         self.cont_entry.insert(0, "1")
         
         self.intTable2()
@@ -161,6 +172,18 @@ class page4(ck.CTkFrame):
         mysite = mycursor.fetchall()
         for site in mysite:
             self.table2.insert('','end',values=(site))
+    
+    def on_item_select_and_update_name_added(self, event):
+        self.on_item_select(event)
+        self.update_nameAdded(event)
+
+    def update_nameAdded(self, event):
+        selected_item = self.table2.selection()
+        if selected_item:
+            name = self.table2.item(selected_item, "values")[0]
+            self.nameAdded.configure(text=f"{name}")
+        else:
+             self.nameAdded.configure(text="")
 
    
     def add_data(self):
@@ -237,7 +260,7 @@ class page4(ck.CTkFrame):
 
     def edit_window(self):
         def get():
-            list =[self.entry2,self.entry3]
+            list =[self.entry3]
             entry_texts = [entry.get() for entry in list]
             if any(not text for text in entry_texts):
                 mixer.music.load("sounds/error.mp3")
@@ -245,10 +268,8 @@ class page4(ck.CTkFrame):
                 messagebox.showwarning("Warning Message","قم بادخال جميع الحقول",icon="warning")
             
             else:
-                    self.is_valid_entry(self.entry2.get()) 
                     self.is_valid_entry(self.entry3.get())
                     self.convert_arabic_to_english(self.entry3)
-                    self.convert_arabic_to_english(self.entry2)
             
                     selected_item = self.table.selection()
 
@@ -258,17 +279,15 @@ class page4(ck.CTkFrame):
                     x=self.table.item(item_id, "values")
 
                     new_cont = self.entry3.get()
-                    new_price = self.entry2.get()
-                    self.table.item(item_id, values=(x[0], new_price, new_cont,x[3],x[4]))
-                    new_subtotal = (float(self.entry2.get())*float(self.entry3.get()))
-                    self.table.set(item_id, column='#5', value=new_subtotal)
+                    new_total = float(new_cont)*float(x[1])
+                    self.table.item(item_id, values=(x[0], x[1], new_cont,x[3],new_total))
                     self.update_total("")
                     mixer.music.load("sounds/done.wav")
                     mixer.music.play()
                     new_window.destroy()
 
         new_window = tk.Toplevel(self)
-        new_window.geometry("440x400")
+        new_window.geometry("400x300")
         new_window.title('Daftar Application')
 
         self.label = ck.CTkLabel(new_window, text='تعديل ',corner_radius=20,height=50,text_color="#2e8fe7",font=ck.CTkFont(size=30,weight="bold")) 
@@ -277,13 +296,6 @@ class page4(ck.CTkFrame):
         center_x = int(750)
         center_y = int(350)
         new_window.geometry(f"+{center_x}+{center_y}")
-
-
-        label2 = ck.CTkLabel(new_window,width=200,text=" سعر الحبة: ",font=ck.CTkFont(size=21,weight="bold"))
-        label2.pack(padx=10, pady=10)
-
-        self.entry2 = ck.CTkEntry(new_window,width=200)
-        self.entry2.pack(padx=10, pady=10)
 
         label3 = ck.CTkLabel(new_window,width=200,text="الكمية:",font=ck.CTkFont(size=21,weight="bold"))
         label3.pack(padx=10, pady=10)
@@ -295,12 +307,8 @@ class page4(ck.CTkFrame):
 
         values =  self.table.item(selected_item, 'values')
 
-        self.entry2.delete(0,'end')
         self.entry3.delete(0,'end')
-
-        self.entry2.insert(0,values[1])
         self.entry3.insert(0,values[2])
-        # self.entry4.insert(0,values[4])
 
         ok_button = ck.CTkButton(new_window, text="تعديل", command=get)
         ok_button.pack(padx=10, pady=10)   
@@ -354,8 +362,9 @@ class page4(ck.CTkFrame):
             values = self.table.item(item_id, "values")
             total_price += float(values[4])
 
-        self.price_variabled=total_price
-        self.totalPrice.set("المجموع : {:.2f}".format(float(self.price_variabled)))
+        self.Origin_price_variabled=total_price
+        self.AfterDiscountVar=self.Origin_price_variabled
+        self.totalPrice.set("المجموع : {:.2f}".format(float(self.Origin_price_variabled)))
 
 
     def is_exists(self,cont):
@@ -379,20 +388,6 @@ class page4(ck.CTkFrame):
 
     def buy(self):
         
-        def hide_widgets():
-            payLabel.grid_forget()
-            payValue_entry.grid_forget()
-            phoneLabel.grid_forget()
-            phone_entry.grid_forget()
-            done_button.pack_forget()
-
-        def show_widgets():
-            payLabel.grid(row=0, column=3, pady=10)
-            payValue_entry.grid(row=0, column=2, padx=15, pady=10)
-            phoneLabel.grid(row=0, column=1, pady=10)
-            phone_entry.grid(row=0, column=0, padx=25, pady=10)
-            done_button.pack()
-
         def get_order_details_from_tree():
             order_details_data = []
 
@@ -412,14 +407,13 @@ class page4(ck.CTkFrame):
                 return product_id
                 
         def full_pay():
-            hide_widgets()
 
             sure = messagebox.askyesno("Confirmation", "تاكيد ؟ ",icon="warning")
             if sure : 
                 
                 if not self.Name_entry.get() :
-                    insert_order_query = "INSERT INTO Orders (OrderDate, TotalAmount, Status,receive) VALUES (%s, %s, %s,%s)"
-                    order_data = (datetime.now(), self.price_variabled, '1',checkbox_var.get())
+                    insert_order_query = "INSERT INTO Orders (OrderDate, TotalAmount, Status,receive,AfterDiscount,remainAmount,discount) VALUES (%s, %s, %s,%s,%s,%s,%s)"
+                    order_data = (datetime.now(), self.Origin_price_variabled, '1',checkbox_var.get(),self.AfterDiscountVar,0.00,self.discontLabl)
                     mycursor.execute(insert_order_query, order_data)
                     mydb.commit()
                     
@@ -453,15 +447,18 @@ class page4(ck.CTkFrame):
                     new_window.destroy()
 
                 else :
-                            insert_customer_query = "INSERT INTO Customers (CustomerName) VALUES (%s)"
-                            mycursor.execute(insert_customer_query, (self.Name_entry.get(),))
-                            mydb.commit()
+                            if self.existCustom ==True:
+                                customer_id = self.ExistCustomerID
+                            else:    
+                                insert_customer_query = "INSERT INTO Customers (CustomerName) VALUES (%s)"
+                                mycursor.execute(insert_customer_query, (self.Name_entry.get(),))
+                                mydb.commit()
+                                customer_id = mycursor.lastrowid
                 
 
-                            customer_id = mycursor.lastrowid
 
-                            insert_order_query = "INSERT INTO Orders (OrderDate,CustomerID,TotalAmount,remainAmount, Status,receive) VALUES (%s,%s, %s, %s, %s,%s)"
-                            order_data = (datetime.now(),customer_id,self.price_variabled,0, '1',checkbox_var.get())
+                            insert_order_query = "INSERT INTO Orders (OrderDate,CustomerID,TotalAmount, Status,receive,AfterDiscount,remainAmount,discount) VALUES (%s, %s, %s,%s,%s,%s,%s,%s)"
+                            order_data = (datetime.now(),customer_id,self.Origin_price_variabled, '1',checkbox_var.get(),self.AfterDiscountVar,0.00,self.discontLabl)
                             mycursor.execute(insert_order_query, order_data)
                             mydb.commit()
                 
@@ -496,10 +493,7 @@ class page4(ck.CTkFrame):
                             mixer.music.load("sounds/done.wav")
                             mixer.music.play()
                             new_window.destroy()
-
-        def part_pay():
-            show_widgets()
-       
+   
         def part_done():
             sure = messagebox.askyesno("Confirmation", "تاكيد ؟ ",icon="warning")
             if sure :
@@ -517,21 +511,16 @@ class page4(ck.CTkFrame):
 
                 
 
-                if  not phone_entry.get() :    
-                    insert_customer_query = "INSERT INTO Customers (CustomerName) VALUES (%s)"
-                    mycursor.execute(insert_customer_query, (self.Name_entry.get(),))
-                    mydb.commit()
-
+                if self.existCustom ==True:
+                    customer_id = self.ExistCustomerID
                 else:    
-                    insert_customer_query = "INSERT INTO Customers (CustomerName,Phone) VALUES (%s,%s)"
-                    mycursor.execute(insert_customer_query, (self.Name_entry.get(),phone_entry.get()))
-                    mydb.commit()    
-        
+                    insert_customer_query = "INSERT INTO Customers (CustomerName,Phone) VALUES (%s)"
+                    mycursor.execute(insert_customer_query, (self.Name_entry.get(), self.phone_entry.get()))
+                    mydb.commit()
+                    customer_id = mycursor.lastrowid
 
-                customer_id = mycursor.lastrowid
-
-                insert_order_query = "INSERT INTO Orders (OrderDate,CustomerID,TotalAmount,remainAmount, Status,receive) VALUES (%s,%s, %s, %s, %s,%s)"
-                order_data = (datetime.now(),customer_id,self.price_variabled,(float(self.price_variabled)-float(payValue_entry.get())), '0',checkbox_var.get())
+                insert_order_query = "INSERT INTO Orders (OrderDate,CustomerID,TotalAmount,remainAmount, Status,receive,discount,AfterDiscount) VALUES (%s,%s,%s,%s,%s, %s, %s,%s)"
+                order_data = (datetime.now(),customer_id,self.Origin_price_variabled,(float(self.AfterDiscountVar)-float(payValue_entry.get())), '0',checkbox_var.get(),self.discontLabl,self.AfterDiscountVar)
                 mycursor.execute(insert_order_query, order_data)
                 mydb.commit()
         
@@ -566,11 +555,11 @@ class page4(ck.CTkFrame):
                 new_window.destroy()
 
         new_window = tk.Toplevel(self)
-        new_window.geometry("440x540")
+        new_window.geometry("500x615")
         new_window.title('Daftar Application')
 
-        center_x = int(750)
-        center_y = int(350)
+        center_x = int(730)
+        center_y = int(250)
         new_window.geometry(f"+{center_x}+{center_y}")
 
         total_frame= ck.CTkFrame(new_window,fg_color="transparent")
@@ -579,6 +568,7 @@ class page4(ck.CTkFrame):
         total = ck.CTkLabel(total_frame,textvariable=self.totalPrice,text=f"{self.totalPrice.get()}",text_color="green",corner_radius=20,height=30,font=ck.CTkFont(size=25,weight="bold"))
         total.grid(row=0, column=0)  
 
+        self.AfterDisocuntLabl = ck.CTkLabel(total_frame,textvariable=self.AfterDiscount,text=f"{self.AfterDiscount.get()}",corner_radius=20,height=30,font=ck.CTkFont(size=19,weight="bold"))
 
         original_image = Image.open("imags/edit.png")
         self.editMG = original_image.resize((15, 15))
@@ -587,54 +577,167 @@ class page4(ck.CTkFrame):
         self.edit_butt = tk.Button(total_frame,image=self.editMG,command=self.editShow)
         self.edit_butt.grid(row=0, column=1)  
 
-        self.edit_entry =ck.CTkEntry(total_frame,width=100,height=10)
+        self.discount_frame= ck.CTkFrame(total_frame,fg_color="transparent")
+
+        self.discontLbl=ck.CTkLabel(self.discount_frame,text=f"خصم: ",text_color="#2e8fe7",corner_radius=20,height=30,font=ck.CTkFont(size=16,weight="bold"))
+        self.edit_entry =ck.CTkEntry(self.discount_frame,width=100,height=10)
         self.edit_entry.bind("<Return>", self.editTotal)
+
+        self.discontLbl.grid(row=1, column=3)
+        self.edit_entry.grid(row=1, column=2)
+
+        self.radio_var = tk.IntVar(value=0)
+        self.radio_button_1 = ck.CTkRadioButton(master=self.discount_frame,text="%",variable=self.radio_var, value=1)
+        self.radio_button_1.grid(row=1, column=0)
+        self.radio_button_2 = ck.CTkRadioButton(master=self.discount_frame,text="شيكل", variable=self.radio_var, value=0)
+        self.radio_button_2.grid(row=1, column=1)
 
         checkbox_var = tk.IntVar()
         recive = ck.CTkCheckBox(new_window,text="استلم",text_color="#2e8fe7",font=ck.CTkFont(size=21,weight="bold"),variable=checkbox_var)
         recive.pack(padx=10, pady=20)
 
+
         label1 = ck.CTkLabel(new_window,width=200,text="الاسم",font=ck.CTkFont(size=18,weight="bold"))
         label1.pack(padx=10, pady=5)
-        self.Name_entry = ck.CTkEntry(new_window,width=200)
+
+        search_button = ck.CTkButton(new_window, text="بحث",height=15,width=45, fg_color="transparent",command=self.search_coustomer,border_width=2, text_color=("gray10", "#DCE4EE"),font=ck.CTkFont(size=14,weight="bold"))
+        search_button.pack(pady=5)  
+
+        self.Name_entry = ck.CTkEntry(new_window,width=200,placeholder_text="زبون جديد")
         self.Name_entry.pack(padx=10, pady=10)
 
-        full_button = ck.CTkButton(new_window, text="دفع كامل",height=25,fg_color="green", command=full_pay,font=ck.CTkFont(size=20,weight="bold"))
-        full_button.pack(padx=10, pady=15)  
+        self.tabview = ck.CTkTabview(new_window, width=250)
+        self.tabview.pack(pady=(20, 0))
+        self.tabview.add("دفع كامل")
+        self.tabview.add("الدفع غير مكتمل")
+        self.tabview.tab("دفع كامل").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("الدفع غير مكتمل").grid_columnconfigure(0, weight=1)
 
-        part_button = ck.CTkButton(new_window, text="الدفع غير مكتمل",height=25, command=part_pay,font=ck.CTkFont(size=20,weight="bold"))
-        part_button.pack(padx=10, pady=15)  
+
+        full_button = ck.CTkButton( self.tabview.tab("دفع كامل"), text="دفع كامل",height=25,fg_color="green", command=full_pay,font=ck.CTkFont(size=20,weight="bold"))
+        full_button.pack(padx=10, pady=15)  
 
         self.printIMG = ck.CTkImage(Image.open("imags/printer.png"),size=(25,25))
 
+        payLabel = ck.CTkLabel(self.tabview.tab("الدفع غير مكتمل"),text="قيمة الدفع",font=ck.CTkFont(size=17,weight="bold"))
+        payValue_entry = ck.CTkEntry(self.tabview.tab("الدفع غير مكتمل"),width=110)
 
-        partBuy_frame= ck.CTkFrame(new_window,fg_color="transparent")
-        partBuy_frame.pack(fill=ck.X,expand=False,pady=20)
+        phoneLabel = ck.CTkLabel(self.tabview.tab("الدفع غير مكتمل"),text="هاتف",font=ck.CTkFont(size=17,weight="bold"))
+        self.phone_entry = ck.CTkEntry(self.tabview.tab("الدفع غير مكتمل"),width=120)
 
-        payLabel = ck.CTkLabel(partBuy_frame,text="قيمة الدفع",font=ck.CTkFont(size=17,weight="bold"))
-        payValue_entry = ck.CTkEntry(partBuy_frame,width=110)
+        done_button = ck.CTkButton(self.tabview.tab("الدفع غير مكتمل"), text="تم",command=part_done,fg_color="green",height=16,font=ck.CTkFont(size=16,weight="bold"))
 
-        phoneLabel = ck.CTkLabel(partBuy_frame,text="هاتف",font=ck.CTkFont(size=17,weight="bold"))
-        phone_entry = ck.CTkEntry(partBuy_frame,width=120)
+        payLabel.pack(pady=7)
+        payValue_entry.pack(pady=7)
+        phoneLabel.pack(pady=7)
+        self.phone_entry.pack(pady=7)
+        done_button.pack()
 
-
-        done_frame= ck.CTkFrame(new_window,fg_color="transparent")
-        done_frame.pack(fill=ck.X,expand=False,pady=7)
-        done_button = ck.CTkButton(done_frame, text="تم",command=part_done,fg_color="green",height=16,font=ck.CTkFont(size=16,weight="bold"))
-
+        self.existCustom = False
+        self.ExistCustomerID=None
 
     
     def editShow(self):
-        self.edit_entry.grid(row=1, column=0,pady=5)
+        self.discount_frame.grid(row=1, column=0,pady=18,padx=10)
     
     def editTotal(self,event):
 
-        if self.is_valid_entry(self.edit_entry.get()):
-            self.price_variabled=float(self.edit_entry.get())
-            self.totalPrice.set("المجموع : {:.2f}".format(float(self.edit_entry.get())))
-            self.edit_entry.grid_forget()
+        if self.is_valid_entry(self.edit_entry.get()) :
+
+                if self.radio_var.get() == 0 :
+                    if float(self.edit_entry.get())>=0 and float(self.edit_entry.get())<=self.Origin_price_variabled:
+                        newPrice=self.Origin_price_variabled
+                        newPrice=float(newPrice)-float(self.edit_entry.get())
+                        discounted_percentage_of_original = (newPrice / self.Origin_price_variabled) * 100
+                        self.AfterDiscount.set("المجموع : {:.2f}".format(float(newPrice)))
+                        self.discontLabl=f"% {discounted_percentage_of_original}"
+                        self.AfterDiscountVar=newPrice
+                    else:
+                        mixer.music.load("sounds/error.mp3")
+                        mixer.music.play()
+                        messagebox.showwarning("Warning Message","ادخال خاطئ",icon="warning")
+                    
+                elif self.radio_var.get() == 1 :
+                    if float(self.edit_entry.get())>=0 and float(self.edit_entry.get())<=100:
+                        newPrice=self.Origin_price_variabled
+                        discount_amount=(float(self.edit_entry.get()) / 100) * float(newPrice)
+                        discounted_price = float(newPrice) - discount_amount
+
+                        self.AfterDiscount.set("المجموع : {:.2f}".format(float(discounted_price)))
+                        self.discontLabl=f"% {self.edit_entry.get()}"
+                        self.AfterDiscountVar=discounted_price
+                    else:
+                        mixer.music.load("sounds/error.mp3")
+                        mixer.music.play()
+                        messagebox.showwarning("Warning Message","ادخال خاطئ",icon="warning")
+                
+                self.discount_frame.grid_forget()
+                self.AfterDisocuntLabl.grid(row=1, column=0)
+        
+           
+    def search_coustomer(self):
+
+        new_window = tk.Toplevel(self)
+        new_window.geometry("640x560")
+        new_window.title('Daftar Application')
+        
+
+        center_x = int(550)
+        center_y = int(150)
+        new_window.geometry(f"+{center_x}+{center_y}")
+
+        label = ck.CTkLabel(new_window,width=200,text="الزبائن" ,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold"))
+        label.pack(pady=10)
+       
+
+        columns = ("id","name","phone")
+        table = ttk.Treeview(new_window,columns=columns,height=15, selectmode='browse',show='headings')
+
+        table.column("id", anchor="center",width=70,minwidth=70)
+        table.column("name", anchor="center",width=280,minwidth=280)
+        table.column("phone", anchor="center",width=70, minwidth=70)
+     
+        table.heading('id', text='رمز ')
+        table.heading('name', text='اسم الزبون')
+        table.heading("phone", text='هاتف')
+
+        table.bind('<Motion>','break')
+        table.pack(pady=20)
+
+        def selectee():
+            selected_item = table.focus()
+            values =  table.item(selected_item, 'values')
+            self.Name_entry.delete(0,'end')
+            self.Name_entry.insert(0, values[1])
+            self.phone_entry.delete(0,'end')
+            if values[2] == "None":
+                self.phone_entry.insert(0,"")
+            else:     self.phone_entry.insert(0,values[2])
+
+            self.ExistCustomerID =values[0]
+            self.existCustom=True
+            
+            new_window.destroy()
+
+        done_button = ck.CTkButton(new_window, text="اختر",command=selectee,height=16,font=ck.CTkFont(size=19,weight="bold"))
+        done_button.pack(pady=10)
 
 
+        for row in table.get_children():
+            table.delete(row)
+
+        sql_query = """
+                    SELECT *
+                    FROM Customers
+                    Order by CustomerID Asc;
+                """
+
+        mycursor.execute(sql_query)
+
+        results = mycursor.fetchall()
+
+        for site in results:
+            table.insert('','end',values=(site))
 
     def is_valid_entry(self,entry_value):
             try:
@@ -652,7 +755,7 @@ class page4(ck.CTkFrame):
             self.table.delete(row)
 
          self.done_button.configure(state="disabled")
-         self.price_variabled=0.00
+         self.Origin_price_variabled=0.00
          self.totalPrice.set("المجموع : 0.00")
          self.cont_entry.delete(0,'end')
          self.cont_entry.insert(0, "1")
@@ -689,10 +792,10 @@ class page4(ck.CTkFrame):
             if not self.Name_entry.get(): name="-" 
             else:name=self.Name_entry.get()
 
-            self.print(table_data,name,total_amount,(total_amount-remain_amount),f"{order_id}.pdf")
+            self.printX(table_data,name,total_amount,(total_amount-remain_amount),f"{order_id}.pdf")
 
 
-    def print(self,schedule_data,name,total,payed,output_filename):
+    def printX(self,schedule_data,name,total,payed,output_filename):
         pdf = SimpleDocTemplate(output_filename, pagesize=letter)
         pdfmetrics.registerFont(TTFont('Arabic', 'arfonts-traditional-arabic-bold/traditional-arabic-bold.ttf'))
         
