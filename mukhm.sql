@@ -135,9 +135,8 @@ Add COLUMN Unit VARCHAR(20);
 ------------
 ALTER TABLE orders 
 CHANGE COLUMN  remainAmount remainAmount DECIMAL(10,2)  DEFAULT 0 ;
+-------------
 
-
-=========================
 create table employee(
 EID int auto_increment primary key ,
 name varchar(100) ,
@@ -186,3 +185,14 @@ CHANGE COLUMN des des VARCHAR(250)  DEFAULT '-' ;
 
 
 Drop table obligations;
+-------
+ALTER TABLE orders 
+ADD COLUMN discount varchar(50) DEFAULT '%0.00';
+
+ALTER TABLE orders 
+ADD COLUMN AfterDiscount DECIMAL(10,2);
+
+ALTER TABLE orders
+MODIFY COLUMN remainAmount DECIMAL(10,2) DEFAULT '0.00';
+
+-----------
