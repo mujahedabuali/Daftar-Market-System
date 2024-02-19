@@ -13,20 +13,22 @@ from pygame import mixer
 class Suppliers(ck.CTkFrame):
     def __init__(self, parent,login_page_instance):
         super().__init__(parent, corner_radius=0, fg_color="transparent")
+        self.main_frame = ck.CTkFrame(self,fg_color="transparent")
+        self.main_frame.grid(row=0, column=0,pady=60)
         self.grid_columnconfigure(0, weight=10)
 
         self.bookmark_image = ck.CTkImage(Image.open("imags/delivery-courier.png"),size=(40,40))
-        self.label = ck.CTkLabel(self, text="المزودين ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
+        self.label = ck.CTkLabel(self.main_frame, text="المزودين ",image=self.bookmark_image,corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
         self.label.pack(pady=5)
         
 
-        self.search_entry = ck.CTkEntry(self,placeholder_text="search")
+        self.search_entry = ck.CTkEntry(self.main_frame,placeholder_text="search")
         self.search_entry.pack(pady=10)
         self.search_entry.bind("<KeyRelease>", self.search)
 
         columns = ('id','name', 'phone')
 
-        self.table = ttk.Treeview(self,
+        self.table = ttk.Treeview(self.main_frame,
                               columns=columns,
                               height=16,
                               selectmode='browse',
@@ -46,7 +48,7 @@ class Suppliers(ck.CTkFrame):
 
         self.table.pack(pady=15)
 
-        button_frame = ck.CTkFrame(self,fg_color="transparent")
+        button_frame = ck.CTkFrame(self.main_frame,fg_color="transparent")
         button_frame.pack(fill=ck.Y,expand=True,padx=15,pady=45)
 
         self.detial_button = ck.CTkButton(button_frame, text="تفاصيل",fg_color="green",height=30,command=self.show_detial,font=ck.CTkFont(size=20,weight="bold"))
@@ -120,7 +122,7 @@ class Suppliers(ck.CTkFrame):
 
                     new_window.destroy()
 
-        new_window = tk.Toplevel(self)
+        new_window = tk.Toplevel(self.main_frame)
         new_window.geometry("420x380")
         new_window.title('Daftar Application')
 
@@ -205,7 +207,7 @@ class Suppliers(ck.CTkFrame):
  
     
         def editName():
-            nwindow = tk.Toplevel(self)
+            nwindow = tk.Toplevel(self.main_frame)
             nwindow.geometry("450x150")
             nwindow.title('Daftar Application ')
 
@@ -227,7 +229,7 @@ class Suppliers(ck.CTkFrame):
             
 
         def editPhone():
-            nwindow = tk.Toplevel(self)
+            nwindow = tk.Toplevel(self.main_frame)
             nwindow.geometry("450x250")
             nwindow.title('Daftar Application ')
 
@@ -247,7 +249,7 @@ class Suppliers(ck.CTkFrame):
             ok_button.pack(padx=10, pady=10)  
 
 
-        new_window = tk.Toplevel(self)
+        new_window = tk.Toplevel(self.main_frame)
         new_window.geometry("420x380")
         new_window.title('Daftar Application ')
 
