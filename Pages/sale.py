@@ -503,7 +503,7 @@ class page4(ck.CTkFrame):
                     messagebox.showwarning("Warning Message","قم بإدخال اسم الزبون",icon="warning")
                     return
 
-                elif not payValue_entry.get() :
+                elif not payValue_entry.get() or float(payValue_entry.get())>self.AfterDiscountVar :
                     mixer.music.load("sounds/error.mp3")
                     mixer.music.play() 
                     messagebox.showwarning("Warning Message","قم بإدخال قيمة الدفع ",icon="warning")
@@ -514,7 +514,7 @@ class page4(ck.CTkFrame):
                 if self.existCustom ==True:
                     customer_id = self.ExistCustomerID
                 else:    
-                    insert_customer_query = "INSERT INTO Customers (CustomerName,Phone) VALUES (%s)"
+                    insert_customer_query = "INSERT INTO Customers (CustomerName,Phone) VALUES (%s,%s)"
                     mycursor.execute(insert_customer_query, (self.Name_entry.get(), self.phone_entry.get()))
                     mydb.commit()
                     customer_id = mycursor.lastrowid
