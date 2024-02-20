@@ -229,7 +229,7 @@ class Store(ck.CTkFrame):
 
         self.entry4 = ck.CTkEntry(new_window,width=200)
         self.entry4.pack(padx=10, pady=10)
-        
+
         label2 = ck.CTkLabel(new_window,width=200,text="سعر البيع:",font=ck.CTkFont(size=21,weight="bold"))
         label2.pack(padx=10, pady=10)
 
@@ -238,7 +238,7 @@ class Store(ck.CTkFrame):
 
 
 
-        self.unit_dropdown = ck.CTkComboBox(new_window, values=["حبة", "صندوق", "كيس","كيلو","طن","غير ذلك"])
+        self.unit_dropdown = ck.CTkComboBox(new_window, values=["حبة","متر","صندوق", "كيس","كيلو","طن","غير ذلك"])
         self.unit_dropdown.pack(pady=10)
         self.unit_dropdown.set("حبة")
 
