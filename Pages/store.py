@@ -238,9 +238,9 @@ class Store(ck.CTkFrame):
 
 
 
-        self.unit_dropdown = ck.CTkComboBox(new_window, values=["حبة","متر","صندوق", "كيس","كيلو","طن","غير ذلك"])
+        self.unit_dropdown = ck.CTkComboBox(new_window, values=["قطعة","متر","صندوق","جوز","كيس","كيلو","طن","غير ذلك"])
         self.unit_dropdown.pack(pady=10)
-        self.unit_dropdown.set("حبة")
+        self.unit_dropdown.set("قطعة")
 
         ok_button = ck.CTkButton(new_window, text="إضافة", command=get)
         ok_button.pack(padx=10, pady=10)
