@@ -80,6 +80,8 @@ class Obligations(ck.CTkFrame):
         if hasattr(self, 'ot_frame'):
             self.ot_frame.grid_forget()
             del self.ot_frame
+        
+        self.update_idletasks()  
 
         self.main_frame.grid(row=0, column=0)
 

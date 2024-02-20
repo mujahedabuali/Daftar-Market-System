@@ -218,20 +218,22 @@ class Store(ck.CTkFrame):
         self.entry.bind("<Control-c>", lambda event: self.entry.clipboard_append(self.entry.selection_get()))
         self.entry.bind("<Control-p>", lambda event: self.entry.insert('insert', self.entry.clipboard_get()))
 
+
+        label3 = ck.CTkLabel(new_window,width=200,text="الكمية:",font=ck.CTkFont(size=21,weight="bold"))
+        label3.pack(padx=10, pady=10)
+
+        label4 = ck.CTkLabel(new_window,width=200,text="سعر الشراء:",font=ck.CTkFont(size=21,weight="bold"))
+        label4.pack(padx=10, pady=10)
+        
         label2 = ck.CTkLabel(new_window,width=200,text="سعر البيع:",font=ck.CTkFont(size=21,weight="bold"))
         label2.pack(padx=10, pady=10)
 
         self.entry2 = ck.CTkEntry(new_window,width=200)
         self.entry2.pack(padx=10, pady=10)
 
-        label3 = ck.CTkLabel(new_window,width=200,text="الكمية:",font=ck.CTkFont(size=21,weight="bold"))
-        label3.pack(padx=10, pady=10)
-
         self.entry3 = ck.CTkEntry(new_window,width=200)
         self.entry3.pack(padx=10, pady=10)
 
-        label4 = ck.CTkLabel(new_window,width=200,text="سعر الشراء:",font=ck.CTkFont(size=21,weight="bold"))
-        label4.pack(padx=10, pady=10)
 
         self.entry4 = ck.CTkEntry(new_window,width=200)
         self.entry4.pack(padx=10, pady=10)
