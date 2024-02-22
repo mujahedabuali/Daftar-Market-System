@@ -1,117 +1,310 @@
 from PIL import Image
 from tkinter import ttk
 from db import mycursor,mydb
+from datetime import datetime, timedelta
 
 import tkinter
 import tkinter.messagebox
-import customtkinter
+import customtkinter as ck
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
-class Dash(customtkinter.CTkFrame):
+
+class Dash(ck.CTkFrame):
     def __init__(self, parent,login_page_instance):
         super().__init__(parent, corner_radius=0, fg_color="transparent")
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        s_frame = ck.CTkFrame(self , fg_color="transparent")
 
 
-        # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="CTkEntry")
-        self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
+        f2 = ck.CTkFrame(s_frame , fg_color="transparent" )
+        f2.grid(row=0,column=0,padx=20)
+        l1 = ck.CTkLabel(f2,text="المستودع",corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
+        l1.pack(pady=10)
+        columns = ('id','name', 'cont')
 
-        self.main_button_1 = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
-        self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.table = ttk.Treeview(f2,
+                              columns=columns,
+                              height=19,
+                              selectmode='browse',
+                              show='headings')
 
-        # create textbox
-        self.textbox = customtkinter.CTkTextbox(self, width=250)
-        self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.table.column("#1", anchor="c", minwidth=100, width=100)
+        self.table.column("#2", anchor="c", minwidth=200, width=200)
+        self.table.column("#3", anchor="c", minwidth=80, width=80)
 
-        # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=250)
-        self.tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.tabview.add("CTkTabview")
-        self.tabview.add("Tab 2")
-        self.tabview.add("Tab 3")
-        self.tabview.tab("CTkTabview").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
-        self.tabview.tab("Tab 2").grid_columnconfigure(0, weight=1)
 
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("CTkTabview"), dynamic_resizing=False,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"])
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("CTkTabview"),
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("CTkTabview"), text="Open CTkInputDialog",
-                                                           command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-        self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
-        self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
+        self.table.heading('id', text='رمز الصنف ')
+        self.table.heading('name', text='الاسم')
+        self.table.heading('cont', text='كمية')
 
-        # create radiobutton frame
-        self.radiobutton_frame = customtkinter.CTkFrame(self)
-        self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.radio_var = tkinter.IntVar(value=0)
-        self.label_radio_group = customtkinter.CTkLabel(master=self.radiobutton_frame, text="CTkRadioButton Group:")
-        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
-        self.radio_button_1 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=0)
-        self.radio_button_1.grid(row=1, column=2, pady=10, padx=20, sticky="n")
-        self.radio_button_2 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=1)
-        self.radio_button_2.grid(row=2, column=2, pady=10, padx=20, sticky="n")
-        self.radio_button_3 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=2)
-        self.radio_button_3.grid(row=3, column=2, pady=10, padx=20, sticky="n")
+        self.table.bind('<Motion>', 'break')
+        self.table.pack(pady=10)
 
-        # create slider and progressbar frame
-        self.slider_progressbar_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        self.slider_progressbar_frame.grid(row=1, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.slider_progressbar_frame.grid_columnconfigure(0, weight=1)
-        self.slider_progressbar_frame.grid_rowconfigure(4, weight=1)
-        self.seg_button_1 = customtkinter.CTkSegmentedButton(self.slider_progressbar_frame)
-        self.seg_button_1.grid(row=0, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.progressbar_1 = customtkinter.CTkProgressBar(self.slider_progressbar_frame)
-        self.progressbar_1.grid(row=1, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.progressbar_2 = customtkinter.CTkProgressBar(self.slider_progressbar_frame)
-        self.progressbar_2.grid(row=2, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.slider_1 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1, number_of_steps=4)
-        self.slider_1.grid(row=3, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.slider_2 = customtkinter.CTkSlider(self.slider_progressbar_frame, orientation="vertical")
-        self.slider_2.grid(row=0, column=1, rowspan=5, padx=(10, 10), pady=(10, 10), sticky="ns")
-        self.progressbar_3 = customtkinter.CTkProgressBar(self.slider_progressbar_frame, orientation="vertical")
-        self.progressbar_3.grid(row=0, column=2, rowspan=5, padx=(10, 20), pady=(10, 10), sticky="ns")
+        f3 = ck.CTkFrame(s_frame, fg_color="transparent")
+        f3.grid(row=0,column=1,padx=20)
+        l2 = ck.CTkLabel(f3,text="الاكثر مبيعا",corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
+        l2.pack(pady=10)
 
-        # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="CTkScrollableFrame")
-        self.scrollable_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
-        self.scrollable_frame_switches = []
+        columns2 = ('id','name', 'cont','num')
+
+
+        self.table2 = ttk.Treeview(f3,
+                              columns=columns2,
+                              height=19,
+                              selectmode='browse',
+                              show='headings')
+
+        self.table2.column("#1", anchor="c", minwidth=100, width=100)
+        self.table2.column("#2", anchor="c", minwidth=200, width=200)
+        self.table2.column("#3", anchor="c", minwidth=180, width=180)
+        self.table2.column("#4", anchor="c", minwidth=80, width=80)
+
+
+        self.table2.heading('id', text='رمز الصنف ')
+        self.table2.heading('name', text='الاسم')
+        self.table2.heading('cont', text='الكميه في المخزن')
+        self.table2.heading('num', text=' عدد ')
+
+        self.table2.bind('<Motion>', 'break')
+        self.table2.pack(pady=10)
+
+
+        f7 = ck.CTkFrame(s_frame , fg_color="#9B9ECE")
+        f7.grid(row=0,column=2,sticky="nsew")
+        # f8 = ck.CTkFrame(self , fg_color="black")
+        # f8.grid(row=2,column=0,sticky="nsew")
+                # create tabview
+        self.tabview = ck.CTkTabview(self, width=250)
+        self.tabview.pack(fill=ck.BOTH, expand=True)
+        self.tabview.add("week")
+        self.tabview.add("week cash")
+        self.tabview.add("month")
+        self.tabview.add("month cash")
+
+        self.tabview.tab("week").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
+        self.tabview.tab("month").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("week cash").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
+        self.tabview.tab("month cash").grid_columnconfigure(0, weight=1)
+
+        self.f1 = ck.CTkFrame(self.tabview.tab("week") , fg_color="green" )
+        self.f1.grid(row=0,column=0,sticky="nsew")
+        self.f4 = ck.CTkFrame(self.tabview.tab("month") , fg_color="black")
+        self.f4.grid(row=0,column=0,sticky="nsew")
+        self.f5 = ck.CTkFrame(self.tabview.tab("week cash") , fg_color="green" )
+        self.f5.grid(row=0,column=0,sticky="nsew")
+        self.f6 = ck.CTkFrame(self.tabview.tab("month cash") , fg_color="black")
+        self.f6.grid(row=0,column=0,sticky="nsew")
+        # self.f1.grid(row=0, column=0, padx=20, pady=(20, 10))
+
+        s_frame.pack(fill=ck.BOTH, expand=True)
+        self.intTable()
+        self.intTable2()
+        self.month_graph()
+        self.week_graph()
+        self.month_graph_cash()
+        self.week_graph_cash()
+
+
+    def intTable(self):
+
+            for row in self.table.get_children():
+                self.table.delete(row)
+
+            mycursor.execute("SELECT ProductID,ProductName,StockQuantity FROM Products where StockQuantity < 7 ORDER BY ProductID DESC")
+            products = mycursor.fetchall()
+            self.table.tag_configure('red_tag', background='red')
+            for product in products:
+                if int(product[2]) < 3 :
+                    self.table.insert('', 'end', values=product, tags=('red_tag'))
+                else:
+                    self.table.insert('', 'end', values=product)
+                     
+   
+   
+    def intTable2(self):
+
+            for row in self.table2.get_children():
+                self.table2.delete(row)
+
+            mycursor.execute("SELECT ProductID, SUM(Quantity) AS TotalQuantitySold FROM OrderDetails join  orders on OrderDetails.OrderID = orders.OrderID where Orders.OrderDate  GROUP BY ProductID ORDER BY TotalQuantitySold DESC LIMIT 5;")
+            products = mycursor.fetchall()
+            for product in products:
+                mycursor.execute("SELECT ProductName,StockQuantity FROM Products where ProductID=%s",(product[0],))
+                info = mycursor.fetchone()
+                self.table2.insert('','end',values=(product[0],info[0],info[1],product[1]))
+
+    def month_graph(self):
+        current_date = datetime.now()
+
+        date_now = current_date.strftime('%Y-%m-%d')
+        current_day = current_date.strftime('%d')
+        current_day = int(current_day)
+        first_day_of_month = current_date.replace(day=1)
+
+
+        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, COUNT(OrderID) AS NumberOfOrders FROM Orders WHERE OrderDate >= %s and OrderDate <= %s GROUP BY  OrderDay ORDER BY OrderDay;",(first_day_of_month,date_now))
+        result = mycursor.fetchall()
+        result_dict = dict(result)
+
+        # Generate a list of dates for the last week
+        start_date = datetime.now() - timedelta(days=current_day-1)
+        end_date = datetime.now()
+        date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+        # Extract dates and corresponding number of orders
+        dates = [date.strftime('%Y-%m-%d') for date in date_list]
+
+        number_of_orders = [result_dict.get(date, 0) for date in dates]
+        fig = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        dates = [date.strftime('%d') for date in date_list]
+        dates = [day.lstrip('0') for day in dates]
+
+
+
+        ax.plot(dates, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         
 
-        # create checkbox and switch frame
-        self.checkbox_slider_frame = customtkinter.CTkFrame(self)
-        self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
-        self.checkbox_2 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="n")
-        self.checkbox_3 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
-
-        # set default values
-        self.checkbox_3.configure(state="disabled")
-        self.checkbox_1.select()
-        self.radio_button_3.configure(state="disabled")
-        self.optionmenu_1.set("CTkOptionmenu")
-        self.combobox_1.set("CTkComboBox")
-        self.slider_1.configure(command=self.progressbar_2.set)
-        self.slider_2.configure(command=self.progressbar_3.set)
-        self.progressbar_1.configure(mode="indeterminnate")
-        self.progressbar_1.start()
-        self.textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
-        self.seg_button_1.configure(values=["CTkSegmentedButton", "Value 2", "Value 3"])
-        self.seg_button_1.set("Value 2")
-
-    def open_input_dialog_event(self):
-        dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
-        print("CTkInputDialog:", dialog.get_input())
+        ax.set_title(" month orders")
+        ax.set_ylabel(" order number")
+        ax.set_xlabel("days")
+        ax.grid(axis='y')
 
 
-    def sidebar_button_event(self):
-        print("sidebar_button click")
+        canvas = FigureCanvasTkAgg(fig, master=self.f4)
+        canvas.draw()
+
+
+        
+        canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
+      
+
+         
+
+    def week_graph(self):
+        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay,COUNT(OrderID) AS NumberOfOrders FROM  Orders WHERE OrderDate >= CURDATE() - INTERVAL 1 WEEK GROUP BY OrderDay ORDER BY OrderDay;")
+        result = mycursor.fetchall()
+        result_dict = dict(result)
+
+        # Generate a list of dates for the last week
+        start_date = datetime.now() - timedelta(days=6)
+        end_date = datetime.now()
+        date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+        # Extract dates and corresponding number of orders
+        dates = [date.strftime('%Y-%m-%d') for date in date_list]
+
+        number_of_orders = [result_dict.get(date, 0) for date in dates]
+        fig = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        day_names = [date.strftime('%A') for date in date_list]
+
+
+        # Plot the data on the axes
+        ax.plot(day_names, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
+        
+        # Customize the plot (optional)
+        ax.set_title("week order")
+        ax.set_xlabel("days")
+        ax.set_ylabel("order number")
+        ax.grid(axis='y')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        canvas = FigureCanvasTkAgg(fig, master=self.f1)
+        canvas.draw()
+
+
+        
+        canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
+      
+
+         
+
+    def month_graph_cash(self):
+        current_date = datetime.now()
+
+        date_now = current_date.strftime('%Y-%m-%d')
+        current_day = current_date.strftime('%d')
+        current_day = int(current_day)
+        first_day_of_month = current_date.replace(day=1)
+
+
+        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, SUM(TotalAmount) AS NumberOfOrders FROM Orders WHERE OrderDate >= %s and OrderDate <= %s GROUP BY  OrderDay ORDER BY OrderDay;",(first_day_of_month,date_now))
+        result = mycursor.fetchall()
+        result_dict = dict(result)
+
+        # Generate a list of dates for the last week
+        start_date = datetime.now() - timedelta(days=current_day-1)
+        end_date = datetime.now()
+        date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+        # Extract dates and corresponding number of orders
+        dates = [date.strftime('%Y-%m-%d') for date in date_list]
+
+        number_of_orders = [result_dict.get(date, 0) for date in dates]
+        fig = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        dates = [date.strftime('%d') for date in date_list]
+        dates = [day.lstrip('0') for day in dates]
+
+
+        ax.plot(dates, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+
+        ax.set_title(" month orders")
+        ax.set_ylabel(" order total")
+        ax.set_xlabel("days")
+        ax.grid(axis='y')
+
+
+        canvas = FigureCanvasTkAgg(fig, master=self.f6)
+        canvas.draw()
+
+
+        
+        canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
+      
+
+         
+
+    def week_graph_cash(self):
+        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay,SUM(TotalAmount) AS NumberOfOrders FROM  Orders WHERE OrderDate >= CURDATE() - INTERVAL 1 WEEK GROUP BY OrderDay ORDER BY OrderDay;")
+        result = mycursor.fetchall()
+        result_dict = dict(result)
+
+        # Generate a list of dates for the last week
+        start_date = datetime.now() - timedelta(days=6)
+        end_date = datetime.now()
+        date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+        # Extract dates and corresponding number of orders
+        dates = [date.strftime('%Y-%m-%d') for date in date_list]
+
+        number_of_orders = [result_dict.get(date, 0) for date in dates]
+        fig = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        day_names = [date.strftime('%A') for date in date_list]
+
+
+        # Plot the data on the axes
+        ax.plot(day_names, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
+        
+        # Customize the plot (optional)
+        ax.set_title("week order")
+        ax.set_xlabel("days")
+        ax.set_ylabel("order total")
+        ax.grid(axis='y')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        canvas = FigureCanvasTkAgg(fig, master=self.f5)
+        canvas.draw()
+
+
+        
+        canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
+      
+
+         
