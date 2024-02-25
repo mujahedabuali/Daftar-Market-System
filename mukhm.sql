@@ -196,3 +196,20 @@ ALTER TABLE orders
 MODIFY COLUMN remainAmount DECIMAL(10,2) DEFAULT '0.00';
 
 -----------
+ALTER TABLE purchases 
+ADD COLUMN info VARCHAR(250)  DEFAULT '-';
+
+ALTER TABLE purchases
+DROP COLUMN remain;
+
+ALTER TABLE Purchase_pay 
+ADD COLUMN Date date;
+
+-------
+ALTER TABLE Purchase_pay
+DROP FOREIGN KEY Purchase_pay_ibfk_1,
+ADD FOREIGN KEY (check_id) REFERENCES Checks(check_id) ON DELETE CASCADE;
+
+ALTER TABLE Purchase_pay
+DROP FOREIGN KEY Purchase_pay_ibfk_2,
+ADD FOREIGN KEY (PurchasesId) REFERENCES Purchases(Id) ON DELETE CASCADE;

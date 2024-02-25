@@ -17,12 +17,12 @@ class login_page(customtkinter.CTkFrame):
         self.actionLogin = login
         super().__init__(parent, corner_radius=0, fg_color="transparent")
         
-        self.logoMuj_image = customtkinter.CTkImage(Image.open("imags/logo_muj.png"),size=(400,400))
+        self.logo_image = customtkinter.CTkImage(Image.open("imags/logo.png"),size=(450,450))
 
         label = customtkinter.CTkLabel(self,text="المخماسي لمواد البناء   ",corner_radius=5,text_color="#2e8fe7",font=customtkinter.CTkFont(family="DecoType Naskh",size=100)) 
         label.pack() 
 
-        self.logoLabl = customtkinter.CTkLabel(self,image=self.logoMuj_image,text="")
+        self.logoLabl = customtkinter.CTkLabel(self,image=self.logo_image,text="")
         self.logoLabl.pack(pady=10)
 
         self.user_pass = customtkinter.CTkEntry(self, placeholder_text="Password", width=200, show="*")

@@ -122,13 +122,15 @@ class page4(ck.CTkFrame):
         
 
         ####### Right table #############
-        columns2 = ('name','price','unit')
+        columns2 = ('id','name','price','unit')
         self.table2 = ttk.Treeview(right_frame,columns=columns2,height=14,selectmode='browse',show='headings')
 
-        self.table2.column("#1", anchor="c", minwidth=260, width=260)
-        self.table2.column("#2", anchor="c", minwidth=70, width=70)
-        self.table2.column("#3", anchor="c", minwidth=50, width=50)
+        self.table2.column("id", anchor="c", minwidth=60, width=60)
+        self.table2.column("name", anchor="c", minwidth=255, width=255)
+        self.table2.column("price", anchor="c", minwidth=65, width=65)
+        self.table2.column("unit", anchor="c", minwidth=45, width=45)
         
+        self.table2.heading('id', text='الرمز')
         self.table2.heading('name', text='العنصر')
         self.table2.heading('price', text='السعر')
         self.table2.heading('unit', text='وحدة')
@@ -136,13 +138,18 @@ class page4(ck.CTkFrame):
         self.table2.bind('<Motion>', 'break')
         self.table.bind("<<TreeviewSelect>>", self.on_item_select2)
 
+        search_frame= ck.CTkFrame(right_frame,fg_color="transparent")
+        search_frame.pack(fill=ck.Y,expand=False,padx=10,pady=20)
 
-
-        self.search_entry = ck.CTkEntry(right_frame,placeholder_text="search")
-        self.search_entry.pack(pady=35)
+        self.search_entry = ck.CTkEntry(search_frame,placeholder_text="search")
+        self.search_entry.grid(row=0, column=0)
         self.search_entry.bind("<KeyRelease>", self.search)
 
-        self.table2.pack(expand=False,padx=30,pady=0)
+        self.search_entry2 = ck.CTkEntry(search_frame,placeholder_text="search by id",width=90)
+        self.search_entry2.grid(row=0, column=2,padx=10)
+        self.search_entry2.bind("<KeyRelease>", self.searchByID)
+
+        self.table2.pack(fill=ck.Y,expand=False,padx=10,pady=33)
 
         add_frame = ck.CTkFrame(right_frame,fg_color="transparent")
         add_frame.pack(fill=ck.Y,expand=False,padx=15,pady=15)
@@ -168,7 +175,7 @@ class page4(ck.CTkFrame):
         for row in self.table2.get_children():
             self.table2.delete(row)
 
-        mycursor.execute("SELECT ProductName,sell_Price,Unit FROM Products WHERE StockQuantity > 1 ORDER BY ProductName ASC")
+        mycursor.execute("SELECT ProductID,ProductName,sell_Price,Unit FROM Products WHERE StockQuantity > 1 ORDER BY ProductName ASC")
         mysite = mycursor.fetchall()
         for site in mysite:
             self.table2.insert('','end',values=(site))
@@ -180,7 +187,7 @@ class page4(ck.CTkFrame):
     def update_nameAdded(self, event):
         selected_item = self.table2.selection()
         if selected_item:
-            name = self.table2.item(selected_item, "values")[0]
+            name = self.table2.item(selected_item, "values")[1]
             self.nameAdded.configure(text=f"{name}")
         else:
              self.nameAdded.configure(text="")
@@ -979,10 +986,20 @@ class page4(ck.CTkFrame):
         self.table2.selection_remove(self.table2.selection())
         
         for item in self.table2.get_children():
-            name = self.table2.item(item)["values"][0]
+            name = self.table2.item(item)["values"][1]
             name = name.lower()
 
             if search_query in name:
+                self.table2.selection_add(item)
+                self.table2.see(item)
+    
+    def searchByID(self, event):
+        search_query = self.search_entry2.get().lower()
+        self.table2.selection_remove(self.table2.selection())
+        
+        for item in self.table2.get_children():
+            id = str(self.table2.item(item)["values"][0]).lower()
+            if search_query in id:
                 self.table2.selection_add(item)
                 self.table2.see(item)
 

@@ -43,14 +43,19 @@ class Store(ck.CTkFrame):
         top_frame.pack(fill=ck.X,expand=False,padx=5,pady=5)
 
         search_frame= ck.CTkFrame(top_frame,fg_color="transparent")
-        search_frame.pack(side="top", padx=10,pady=7)
+        search_frame.pack(fill=ck.Y,expand=False,padx=10,pady=7)
 
         topBttn_frame= ck.CTkFrame(top_frame,fg_color="transparent")
         topBttn_frame.pack(side="right", padx=10)
         
-        self.search_entry = ck.CTkEntry(search_frame,placeholder_text="search")
+        self.search_entry = ck.CTkEntry(search_frame,placeholder_text="search by name")
         self.search_entry.grid(row=0, column=0)
         self.search_entry.bind("<KeyRelease>", self.search)
+
+        self.search_entry2 = ck.CTkEntry(search_frame,placeholder_text="search by id",width=90)
+        self.search_entry2.grid(row=0, column=2,padx=10)
+        self.search_entry2.bind("<KeyRelease>", self.searchByID)
+
 
         self.print_button = ck.CTkButton(topBttn_frame, text="طباعة تقارير",height=20,width=15,command=self.Xprint,font=ck.CTkFont(size=14,weight="bold"))
         self.print_button.grid(row=2, column=0,padx=10)
@@ -154,6 +159,16 @@ class Store(ck.CTkFrame):
             name = name.lower()
 
             if search_query in name:
+                self.table.selection_add(item)
+                self.table.see(item)
+
+    def searchByID(self, event):
+        search_query = self.search_entry2.get().lower()
+        self.table.selection_remove(self.table.selection())
+        
+        for item in self.table.get_children():
+            id = str(self.table.item(item)["values"][0]).lower()
+            if search_query in id:
                 self.table.selection_add(item)
                 self.table.see(item)
 

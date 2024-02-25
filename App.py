@@ -70,7 +70,8 @@ class menuFrame(customtkinter.CTkFrame):
         self.setting_button = customtkinter.CTkButton(self, corner_radius=0, height=40,font=customtkinter.CTkFont(size=16, weight="bold"), border_spacing=10, text="الاعدادات",image=self.setting_image, compound="left",fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"), anchor="w", command=setting)
         self.setting_button.grid(row=11, column=0, sticky="ew")
 
-        self.logout_button = customtkinter.CTkButton(self, corner_radius=0, height=40, border_spacing=10, text="Log out       .Made By J-Group", fg_color="transparent", text_color=("red", "red"), hover_color=("gray70", "gray30"), anchor="w",command=logout)
+        self.logo_image = customtkinter.CTkImage(Image.open("imags/logo.png"),size=(70,70))
+        self.logout_button = customtkinter.CTkButton(self, corner_radius=0, height=40, border_spacing=10, text="Log out    ",image=self.logo_image, compound="right",fg_color="transparent", text_color=("red", "red"), hover_color=("gray70", "gray30"), anchor="w",command=logout)
         self.logout_button.grid(row=13, column=0, sticky="ew")
 
 #Drive class
@@ -81,7 +82,7 @@ class App(customtkinter.CTk):
 
         self.title("Daftar Application")
         self.geometry("1500x900")
-        self.iconphoto(True, tk.PhotoImage(file='imags/logo_muj.png'))
+        self.iconphoto(True, tk.PhotoImage(file='imags/logo.png'))
         center_x = int(170)
         center_y = int(76)
         self.geometry(f"+{center_x}+{center_y}")
