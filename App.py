@@ -110,7 +110,7 @@ class App(customtkinter.CTk):
         self.navigation_frame.oblig_button.configure(fg_color=("gray75", "gray25") if name == "obligPage" else "transparent")
 
 
-        self.page3.grid_remove()
+        self.stat.grid_remove()
         self.salePage.grid_remove()
         self.storePage.grid_remove()
         self.recordPage.grid_remove()
