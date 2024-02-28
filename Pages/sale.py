@@ -940,7 +940,6 @@ class page4(ck.CTkFrame):
         pdf_canvas.drawString(495, 630, bidi_text8)
         pdf_canvas.drawString(495, 605, bidi_text88)
                 
-                
         cell_height = 20
 
         x_start = 45
