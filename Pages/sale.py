@@ -57,20 +57,24 @@ class page4(ck.CTkFrame):
         mixer.init()
 
         ##########left table###############
-        columns = ('name','price','cont','unit','total_price')
+        columns = ('id','name','price','cont','unit','discont','total_price')
         self.table = ttk.Treeview(left_frame ,columns=columns,height=14,selectmode='browse',show='headings')
 
-        self.table.column("#1", anchor="c", minwidth=300, width=300)
-        self.table.column("#2", anchor="c", minwidth=100, width=100)
-        self.table.column("#3", anchor="c", minwidth=120, width=120)
-        self.table.column("#4", anchor="c", minwidth=100, width=100)
-        self.table.column("#5", anchor="c", minwidth=120, width=120)
+        self.table.column("id", anchor="c", minwidth=60, width=60)
+        self.table.column("name", anchor="c", minwidth=220, width=220)
+        self.table.column("price", anchor="c", minwidth=70, width=70)
+        self.table.column("cont", anchor="c", minwidth=80, width=80)
+        self.table.column("unit", anchor="c", minwidth=80, width=80)
+        self.table.column("discont", anchor="c", minwidth=90, width=90)
+        self.table.column("total_price", anchor="c", minwidth=110, width=110)
         
 
+        self.table.heading('id', text='الرمز')
         self.table.heading('name', text='العنصر')
         self.table.heading('price', text='السعر')
         self.table.heading('cont', text='كمية')
         self.table.heading('unit', text='وحدة')
+        self.table.heading('discont', text='خصم')
         self.table.heading('total_price', text='مجموع')
         
 
@@ -175,7 +179,7 @@ class page4(ck.CTkFrame):
         for row in self.table2.get_children():
             self.table2.delete(row)
 
-        mycursor.execute("SELECT ProductID,ProductName,sell_Price,Unit FROM Products WHERE StockQuantity > 1 ORDER BY ProductName ASC")
+        mycursor.execute("SELECT ProductID,ProductName,sell_Price,Unit FROM Products WHERE StockQuantity > 0 ORDER BY ProductID desc")
         mysite = mycursor.fetchall()
         for site in mysite:
             self.table2.insert('','end',values=(site))
@@ -216,7 +220,7 @@ class page4(ck.CTkFrame):
                             self.cont_entry.insert(0, "1")
 
                         else: 
-                            self.table.insert('','end',iid=values[0],values=(values[0],values[1],self.cont_entry.get(),values[2],float(values[1])*float(self.cont_entry.get())))
+                            self.table.insert('','end',iid=values[0],values=(values[0],values[1],values[2],self.cont_entry.get(),values[3],"-",float(values[2])*float(self.cont_entry.get())))
                             self.update_total("")
                             self.buyBttonState("xx")
                             mixer.music.load("sounds/done.wav")
@@ -226,7 +230,7 @@ class page4(ck.CTkFrame):
                             x = self.table.item(item_id, 'values')
     
                             if x[0] == values[0]:
-                                new_quantity = int(x[2]) + int(self.cont_entry.get()) 
+                                new_quantity = int(x[3]) + int(self.cont_entry.get()) 
 
                                 if not self.is_exists(new_quantity):
                                     mixer.music.load("sounds/error.mp3")
@@ -236,9 +240,9 @@ class page4(ck.CTkFrame):
                                     self.cont_entry.insert(0, "1")
 
                                 else: 
-                                    new_subtotal = float((x[4])) + (float(values[1])*float(self.cont_entry.get()))
-                                    self.table.set(item_id, column='#3', value=new_quantity)
-                                    self.table.set(item_id, column='#5', value=new_subtotal)
+                                    new_subtotal = float((x[6])) + (float(values[2])*float(self.cont_entry.get()))
+                                    self.table.set(item_id, column='cont', value=new_quantity)
+                                    self.table.set(item_id, column='total_price', value=new_subtotal)
                                     self.update_total("")
                                     self.buyBttonState("xx")
                                     mixer.music.load("sounds/done.wav")
@@ -267,7 +271,7 @@ class page4(ck.CTkFrame):
 
     def edit_window(self):
         def get():
-            list =[self.entry3]
+            list =[self.entry3,self.entry4]
             entry_texts = [entry.get() for entry in list]
             if any(not text for text in entry_texts):
                 mixer.music.load("sounds/error.mp3")
@@ -277,24 +281,61 @@ class page4(ck.CTkFrame):
             else:
                     self.is_valid_entry(self.entry3.get())
                     self.convert_arabic_to_english(self.entry3)
-            
-                    selected_item = self.table.selection()
 
-                    index = self.table.index(selected_item[0])
-                    item_id = self.table.get_children()[index]
+                    self.is_valid_entry(self.entry4.get())
+                    self.convert_arabic_to_english(self.entry4)
 
-                    x=self.table.item(item_id, "values")
+                    if not self.is_exists(float(self.entry3.get())): 
+                        mixer.music.load("sounds/error.mp3")
+                        mixer.music.play()
+                        messagebox.showwarning("Warning Message","غير موجود في المخزن!",icon="warning")
+                        self.entry3.delete(0,'end')
+                        self.entry3.insert(0, "1")
+                        return
+                    
+                    else:
+                        selected_item = self.table.selection()
 
-                    new_cont = self.entry3.get()
-                    new_total = float(new_cont)*float(x[1])
-                    self.table.item(item_id, values=(x[0], x[1], new_cont,x[3],new_total))
-                    self.update_total("")
-                    mixer.music.load("sounds/done.wav")
-                    mixer.music.play()
-                    new_window.destroy()
+                        index = self.table.index(selected_item[0])
+                        item_id = self.table.get_children()[index]
+
+                        x=self.table.item(item_id, "values")
+
+                        new_cont = self.entry3.get()
+                        new_total = float(new_cont)*float(x[2])
+                        disPers=x[5]
+                        
+                        if float(self.entry4.get())>=0 and float(self.entry4.get())<=float(values[2]):
+                            newPriceX=values[2]
+                            newPriceX=float(newPriceX)-float(self.entry4.get())
+                            discounted_percentage_of_original =100-((newPriceX / float(values[2])) * 100)
+                            disPers=f"% {discounted_percentage_of_original:0.2f}"
+
+                            new_total=float(newPriceX)* float(new_cont)
+                        
+                            selected_item = self.table.selection()
+                            index = self.table.index(selected_item[0])
+                            item_id = self.table.get_children()[index]
+
+                            self.table.set(item_id, column='total_price', value=newPriceX)
+                            self.table.set(item_id, column='discont', value=disPers)
+                        else:
+                            mixer.music.load("sounds/error.mp3")
+                            mixer.music.play()
+                            messagebox.showwarning("Warning Message","ادخال خاطئ",icon="warning")
+                            return
+
+                        if self.entry4.get() == "0":
+                            self.table.item(item_id, values=(x[0], x[1],x[2], new_cont,x[4],"-",new_total))
+                        else:
+                            self.table.item(item_id, values=(x[0], x[1],x[2], new_cont,x[4],disPers,new_total))
+                        self.update_total("")
+                        mixer.music.load("sounds/done.wav")
+                        mixer.music.play()
+                        new_window.destroy()
 
         new_window = tk.Toplevel(self)
-        new_window.geometry("400x300")
+        new_window.geometry("400x400")
         new_window.title('Daftar Application')
 
         self.label = ck.CTkLabel(new_window, text='تعديل ',corner_radius=20,height=50,text_color="#2e8fe7",font=ck.CTkFont(size=30,weight="bold")) 
@@ -304,18 +345,34 @@ class page4(ck.CTkFrame):
         center_y = int(350)
         new_window.geometry(f"+{center_x}+{center_y}")
 
+        selected_item = self.table.focus()
+        values =  self.table.item(selected_item, 'values')
+
+        name_var = tk.StringVar()
+        name_var.set(values[1])   
+
+        label1 = ck.CTkLabel(new_window,width=200,text="" +name_var.get(),text_color="#2e8fe7",font=ck.CTkFont(size=19,weight="bold"))
+        label1.pack(pady=15)
+
         label3 = ck.CTkLabel(new_window,width=200,text="الكمية:",font=ck.CTkFont(size=21,weight="bold"))
         label3.pack(padx=10, pady=10)
 
         self.entry3 = ck.CTkEntry(new_window,width=200)
         self.entry3.pack(padx=10, pady=10)
 
-        selected_item = self.table.focus()
+        label4 = ck.CTkLabel(new_window,width=200,text="خصم:",font=ck.CTkFont(size=21,weight="bold"))
+        label4.pack(padx=10, pady=10)
 
-        values =  self.table.item(selected_item, 'values')
+        self.entry4 = ck.CTkEntry(new_window,width=200)
+        self.entry4.pack(padx=10, pady=10)
 
         self.entry3.delete(0,'end')
-        self.entry3.insert(0,values[2])
+        self.entry3.insert(0,values[3])
+
+        self.entry4.delete(0,'end')
+        if values[5] =="-":
+            self.entry4.insert(0,0)
+        else: self.entry4.insert(0,values[5])
 
         ok_button = ck.CTkButton(new_window, text="تعديل", command=get)
         ok_button.pack(padx=10, pady=10)   
@@ -367,7 +424,7 @@ class page4(ck.CTkFrame):
         total_price = 0.0
         for item_id in self.table.get_children():
             values = self.table.item(item_id, "values")
-            total_price += float(values[4])
+            total_price += float(values[6])
 
         self.Origin_price_variabled=total_price
         self.AfterDiscountVar=self.Origin_price_variabled
@@ -378,15 +435,16 @@ class page4(ck.CTkFrame):
     
         selected_item = self.table2.focus()
         values =  self.table2.item(selected_item, 'values')
-        select_query = "SELECT * FROM Products WHERE ProductName = %s"
+        select_query = "SELECT StockQuantity FROM Products WHERE ProductID = %s"
     
         try:
             mycursor.execute(select_query, (values[0],))
-            result = mycursor.fetchall()
+            result = mycursor.fetchone()
             
-            if result[0][6] >=int(cont) :
-                return bool(result)
+            if result and result[0] >= int(cont):
+             return True
             return False
+
         
         except mysql.connector.Error as err:
             messagebox.showwarning("Warning Message","حركة خاطئة",icon="warning")
@@ -403,15 +461,6 @@ class page4(ck.CTkFrame):
                 order_details_data.append(tuple(values))
 
             return order_details_data  
-          
-        def get_producID(name):
-            
-                select_product_query = "SELECT ProductID FROM Products WHERE ProductName = %s"
-                mycursor.execute(select_product_query, (name,))
-                result = mycursor.fetchone()
-
-                product_id = result[0]
-                return product_id
                 
         def full_pay():
 
@@ -427,22 +476,20 @@ class page4(ck.CTkFrame):
                     order_id = mycursor.lastrowid
                     order_details_data = get_order_details_from_tree()
                     
-                    insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal) VALUES (%s, %s, %s, %s)"
+                    insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
 
                     detials_data=[]
                     for x in order_details_data:
-                        if get_producID(x[0]) is not None:
-                            detials_data.append((order_id, get_producID(x[0]),x[2],x[4])) 
+                        if (x[0]) is not None:
+                            detials_data.append((order_id, (x[0]),x[3],x[6],x[5])) 
                     
                     
                     mycursor.executemany(insert_order_details_query,detials_data)
                     mydb.commit()
 
                     update_product_quantity_query = "UPDATE Products SET StockQuantity = StockQuantity - %s WHERE ProductID = %s"
-                    for x in detials_data:
-                        product_id = x[1] 
-                        quantity = x[2] 
-                        mycursor.execute(update_product_quantity_query, (quantity, product_id))
+                    for xx in detials_data:
+                        mycursor.execute(update_product_quantity_query, (xx[2], xx[1]))
 
                     mydb.commit()
 
@@ -473,23 +520,22 @@ class page4(ck.CTkFrame):
                             order_id = mycursor.lastrowid
                             order_details_data = get_order_details_from_tree()
                             
-                            insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal) VALUES (%s, %s, %s, %s)"
+
+                            insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
 
                             detials_data=[]
                             for x in order_details_data:
-                                if get_producID(x[0]) is not None:
-                                    detials_data.append((order_id, get_producID(x[0]),x[2],x[4])) 
-                            
-                            
+                                if (x[0]) is not None:
+                                     x3=self.convert_arabic_to_englishText(x[3])    
+                                     x5=self.convert_arabic_to_englishText(x[5]) 
+                                     detials_data.append((order_id, (x[0]),x3,x[6],x5)) 
+                        
                             mycursor.executemany(insert_order_details_query,detials_data)
                             mydb.commit()
-            
+
                             update_product_quantity_query = "UPDATE Products SET StockQuantity = StockQuantity - %s WHERE ProductID = %s"
-                            for x in detials_data:
-                                product_id = x[1] 
-                                quantity = x[2] 
-                                
-                                mycursor.execute(update_product_quantity_query, (quantity, product_id))
+                            for xx in detials_data:
+                                 mycursor.execute(update_product_quantity_query, (xx[2], xx[1]))
 
                             mydb.commit()
 
@@ -534,13 +580,17 @@ class page4(ck.CTkFrame):
                 
                 order_id = mycursor.lastrowid
                 order_details_data = get_order_details_from_tree()
+
                 
-                insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal) VALUES (%s, %s, %s, %s)"
+                
+                insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
 
                 detials_data=[]
                 for x in order_details_data:
-                    if get_producID(x[0]) is not None:
-                        detials_data.append((order_id, get_producID(x[0]),x[2],x[4])) 
+                    if (x[0]) is not None:
+                        x3=self.convert_arabic_to_englishText(x[3])    
+                        x5=self.convert_arabic_to_englishText(x[6]) 
+                        detials_data.append((order_id, (x[0]),x[3],x3,x5)) 
                 
                 
                 mycursor.executemany(insert_order_details_query,detials_data)
@@ -548,8 +598,8 @@ class page4(ck.CTkFrame):
 
                 update_product_quantity_query = "UPDATE Products SET StockQuantity = StockQuantity - %s WHERE ProductID = %s"
                 for x in detials_data:
-                    product_id = x[1] 
-                    quantity = x[2] 
+                    product_id = x[0] 
+                    quantity = x[3] 
                     mycursor.execute(update_product_quantity_query, (quantity, product_id))
 
                 mydb.commit()
@@ -655,9 +705,9 @@ class page4(ck.CTkFrame):
                     if float(self.edit_entry.get())>=0 and float(self.edit_entry.get())<=self.Origin_price_variabled:
                         newPrice=self.Origin_price_variabled
                         newPrice=float(newPrice)-float(self.edit_entry.get())
-                        discounted_percentage_of_original = (newPrice / self.Origin_price_variabled) * 100
+                        discounted_percentage_of_original =100-((newPrice / self.Origin_price_variabled) * 100)
                         self.AfterDiscount.set("المجموع : {:.2f}".format(float(newPrice)))
-                        self.discontLabl=f"% {discounted_percentage_of_original}"
+                        self.discontLabl=f"% {discounted_percentage_of_original:0.3f}"
                         self.AfterDiscountVar=newPrice
                     else:
                         mixer.music.load("sounds/error.mp3")
@@ -772,7 +822,7 @@ class page4(ck.CTkFrame):
     def printAssist(self,order_id):
          
             sql_query = """
-                    SELECT Products.ProductName, Products.sell_Price , OrderDetails.Quantity,Products.Unit , OrderDetails.Subtotal, remainAmount, TotalAmount
+                    SELECT Products.ProductID,Products.ProductName, Products.sell_Price ,OrderDetails.discount,OrderDetails.Quantity,Products.Unit , OrderDetails.Subtotal, remainAmount, TotalAmount
                     FROM Orders
                     JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
                     JOIN Products ON OrderDetails.ProductID = Products.ProductID
@@ -784,31 +834,38 @@ class page4(ck.CTkFrame):
             results = mycursor.fetchall()
 
 
-            table_data = [['اسم الصنف', 'السعر', 'الكمية','وحدة', 'المجموع']]
+            table_data = [['رمز الصنف','اسم الصنف', 'السعر','خصم', 'الكمية','وحدة', 'المجموع']]
 
             if results:
                 total_amount = results[0][-1] 
-                if not results[0][-2] :
-                    remain_amount = 0
-                else:     remain_amount = results[0][-2]
-
+        
             for row in results:
-                table_row = [row[0], row[1], row[2], row[3],row[4]]
+                table_row = [row[0], row[1], row[2], row[3],row[4],row[5],row[6]]
                 table_data.append(table_row)
     
             if not self.Name_entry.get(): name="-" 
             else:name=self.Name_entry.get()
 
-            self.printX(table_data,name,total_amount,(total_amount-remain_amount),f"{order_id}.pdf")
+            sql_query = """
+                    SELECT Orders.discount
+                    FROM Orders
+                    WHERE Orders.OrderID = %s;
+                """
+
+            mycursor.execute(sql_query, (order_id,))
+
+            results2 = mycursor.fetchone()
+
+            self.printX(table_data,name,total_amount,order_id,results2[0],f"{order_id}.pdf")
 
 
-    def printX(self,schedule_data,name,total,payed,output_filename):
+    def printX(self,schedule_data,name,total,id,discount,output_filename):
         pdf = SimpleDocTemplate(output_filename, pagesize=letter)
         pdfmetrics.registerFont(TTFont('Arabic', 'arfonts-traditional-arabic-bold/traditional-arabic-bold.ttf'))
         
         company_info = {
         'name': 'المخماسي لمواد البناء والادوات الصحية',
-        'telephone': '0569-660392',
+        'telephone': '0598-508615',
         'address': 'مخماس - الشارع الرئيسي'
         }
         
@@ -859,22 +916,34 @@ class page4(ck.CTkFrame):
 
 
         current_date = datetime.now().strftime("%Y-%m-%d")
+        current_date2 = datetime.now().strftime("%I:%M")
 
         pdf_canvas.setFont("Arabic", 13)
         reshaped_text = arabic_reshaper.reshape(f"{current_date} ")
         bidi_text5 = get_display(reshaped_text)
 
         pdf_canvas.setFont("Arabic", 13)
-        reshaped_text = arabic_reshaper.reshape(f" الاسم: {name}")
+        reshaped_text = arabic_reshaper.reshape(f"{current_date2} ")
+        bidi_text55 = get_display(reshaped_text)
+
+        pdf_canvas.setFont("Arabic", 13)
+        reshaped_text = arabic_reshaper.reshape(f"{name}")
         bidi_text8 = get_display(reshaped_text)
+
+        pdf_canvas.setFont("Arabic", 13)
+        reshaped_text = arabic_reshaper.reshape(f" سند رقم: {id}")
+        bidi_text88 = get_display(reshaped_text)
 
 
         pdf_canvas.drawString(50, 630, bidi_text5)
-        pdf_canvas.drawString(490, 630, bidi_text8)
+        pdf_canvas.drawString(65, 610, bidi_text55)
+        pdf_canvas.drawString(495, 630, bidi_text8)
+        pdf_canvas.drawString(495, 605, bidi_text88)
+                
                 
         cell_height = 20
 
-        x_start = 95
+        x_start = 45
         y_start = 540
 
         pdf_canvas.setFont("Arabic", 12)
@@ -882,19 +951,9 @@ class page4(ck.CTkFrame):
         def draw_table_row(row, y):
             pdf_canvas.setFont("Arabic", 12)
 
-            cell_width = 170
+            cell_width = 60
             x = x_start + 0 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[0])} ")
-            bidi_text = get_display(reshaped_text)
-            pdf_canvas.drawString(177 - pdf_canvas.stringWidth(bidi_text, "Arabic", 12) / 2 , y + 5, bidi_text)
-            pdf_canvas.setStrokeColor(colors.blue)
-            pdf_canvas.setLineWidth(1)
-            pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
-            pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
-
-            cell_width = 60
-            x = x_start + 2.83 * cell_width
-            reshaped_text = arabic_reshaper.reshape(f"{str(row[1])} ")
             bidi_text = get_display(reshaped_text)
             pdf_canvas.drawString(x + 10, y + 5, bidi_text)
             pdf_canvas.setStrokeColor(colors.blue)
@@ -902,6 +961,15 @@ class page4(ck.CTkFrame):
             pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
+            cell_width = 170
+            x = x_start + 2.83 * cell_width
+            reshaped_text = arabic_reshaper.reshape(f"{str(row[1])} ")
+            bidi_text = get_display(reshaped_text)
+            pdf_canvas.drawString(191 - pdf_canvas.stringWidth(bidi_text, "Arabic", 12) / 2 , y + 5, bidi_text)
+            pdf_canvas.setStrokeColor(colors.blue)
+            pdf_canvas.setLineWidth(1)
+            pdf_canvas.line(105, y + 21, 105 + cell_width, y + 21)
+            pdf_canvas.rect(105, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
             cell_width = 60
             x = x_start + 3.83 * cell_width
@@ -912,7 +980,7 @@ class page4(ck.CTkFrame):
             pdf_canvas.setLineWidth(1)
             pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
-            
+
             cell_width = 60
             x = x_start + 4.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[3])} ")
@@ -926,6 +994,26 @@ class page4(ck.CTkFrame):
             cell_width = 60
             x = x_start + 5.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[4])} ")
+            bidi_text = get_display(reshaped_text)
+            pdf_canvas.drawString(x + 10, y + 5, bidi_text)
+            pdf_canvas.setStrokeColor(colors.blue)
+            pdf_canvas.setLineWidth(1)
+            pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
+            pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
+            
+            cell_width = 60
+            x = x_start + 6.83 * cell_width
+            reshaped_text = arabic_reshaper.reshape(f"{str(row[5])} ")
+            bidi_text = get_display(reshaped_text)
+            pdf_canvas.drawString(x + 10, y + 5, bidi_text)
+            pdf_canvas.setStrokeColor(colors.blue)
+            pdf_canvas.setLineWidth(1)
+            pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
+            pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
+
+            cell_width = 60
+            x = x_start + 7.83 * cell_width
+            reshaped_text = arabic_reshaper.reshape(f"{str(row[6])} ")
             bidi_text = get_display(reshaped_text)
             pdf_canvas.drawString(x + 7, y + 5, bidi_text)
             pdf_canvas.setStrokeColor(colors.blue)
@@ -949,6 +1037,15 @@ class page4(ck.CTkFrame):
             draw_table_row(row, y)
             y_prime=y    
 
+        label = "خصم :"
+        pdf_canvas.setFont("Arabic", 11)
+        reshaped_text = arabic_reshaper.reshape(f"{label} ")
+        bidi_text6 = get_display(reshaped_text)
+        label_width = pdf_canvas.stringWidth(bidi_text6, "Arabic", 19)
+        label_width = (letter[0] - label_width) / 2
+
+        pdf_canvas.drawString(label_width+15, y_prime-70, f"{discount} {bidi_text6} ")
+
         label = "المبلغ الاجمالي بالشيكل :"
         pdf_canvas.setFont("Arabic", 13)
         reshaped_text = arabic_reshaper.reshape(f"{label} ")
@@ -956,16 +1053,7 @@ class page4(ck.CTkFrame):
         label_width = pdf_canvas.stringWidth(bidi_text6, "Arabic", 19)
         label_width = (letter[0] - label_width) / 2
 
-        pdf_canvas.drawString(label_width, y_prime-100, f"{total} {bidi_text6} ")
-
-        label = "المبلغ المدفوع :"
-        pdf_canvas.setFont("Arabic", 13)
-        reshaped_text = arabic_reshaper.reshape(f"{label} ")
-        bidi_text7 = get_display(reshaped_text)
-        label_width2 = pdf_canvas.stringWidth(bidi_text7, "Arabic", 19)
-        label_width2 = (letter[0] - label_width2) / 2
-
-        pdf_canvas.drawString(label_width2-10, y_prime-140, f"{payed} {bidi_text7} ")
+        pdf_canvas.drawString(label_width+7, y_prime-100, f"{total} {bidi_text6} ")
 
         pdf_canvas.save()
 
@@ -981,27 +1069,37 @@ class page4(ck.CTkFrame):
         else:
             webbrowser.open(pdf_absolute_path)
 
+
     def search(self, event):
         search_query = self.search_entry.get().lower()
-        self.table2.selection_remove(self.table2.selection())
-        
-        for item in self.table2.get_children():
-            name = self.table2.item(item)["values"][1]
-            name = name.lower()
 
-            if search_query in name:
-                self.table2.selection_add(item)
-                self.table2.see(item)
+        self.table2.delete(*self.table2.get_children())
+
+        if search_query:
+            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductName) LIKE '%{search_query}%'"
+            mycursor.execute(sql)
+            matching_products = mycursor.fetchall()
+
+            for product in matching_products:
+                self.table2.insert("", "end", values=product)
+        
+        else:self.intTable2()
+
     
     def searchByID(self, event):
         search_query = self.search_entry2.get().lower()
-        self.table2.selection_remove(self.table2.selection())
-        
-        for item in self.table2.get_children():
-            id = str(self.table2.item(item)["values"][0]).lower()
-            if search_query in id:
-                self.table2.selection_add(item)
-                self.table2.see(item)
+
+        self.table2.delete(*self.table2.get_children())
+
+        if search_query:
+            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductID) LIKE '%{search_query}%'"
+            mycursor.execute(sql)
+            matching_products = mycursor.fetchall()
+
+            for product in matching_products:
+                self.table2.insert("", "end", values=product)
+
+        else:self.intTable2()
 
     def convert_arabic_to_english(self,entry):
         arabic_to_english = {
@@ -1024,3 +1122,23 @@ class page4(ck.CTkFrame):
 
         entry.delete(0,"end")
         entry.insert(0,entry_value)
+
+    def convert_arabic_to_englishText(self, text):
+        arabic_to_english = {
+            '٠': '0',
+            '١': '1',
+            '٢': '2',
+            '٣': '3',
+            '٤': '4',
+            '٥': '5',
+            '٦': '6',
+            '٧': '7',
+            '٨': '8',
+            '٩': '9'
+        }
+        text = str(text)
+
+        for arabic_digit, english_digit in arabic_to_english.items():
+            text = text.replace(arabic_digit, english_digit)
+
+        return text

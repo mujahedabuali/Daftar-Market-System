@@ -14,18 +14,18 @@ from matplotlib.ticker import MaxNLocator
 class Dash(ck.CTkFrame):
     def __init__(self, parent,login_page_instance):
         super().__init__(parent, corner_radius=0, fg_color="transparent")
-        s_frame = ck.CTkFrame(self , fg_color="transparent")
 
+        s_frame = ck.CTkFrame(self , fg_color="transparent")
 
         f2 = ck.CTkFrame(s_frame , fg_color="transparent" )
         f2.grid(row=0,column=0,padx=20)
-        l1 = ck.CTkLabel(f2,text="المستودع",corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
-        l1.pack(pady=10)
+        l1 = ck.CTkLabel(f2,text="تحذيرات المستودع",text_color="red",corner_radius=20,font=ck.CTkFont(size=20,weight="bold")) 
+        l1.pack(pady=5)
         columns = ('id','name', 'cont')
 
         self.table = ttk.Treeview(f2,
                               columns=columns,
-                              height=19,
+                              height=12,
                               selectmode='browse',
                               show='headings')
 
@@ -39,19 +39,21 @@ class Dash(ck.CTkFrame):
         self.table.heading('cont', text='كمية')
 
         self.table.bind('<Motion>', 'break')
-        self.table.pack(pady=10)
+        self.table.pack(pady=5)
+
+        ###############
 
         f3 = ck.CTkFrame(s_frame, fg_color="transparent")
-        f3.grid(row=0,column=1,padx=20)
-        l2 = ck.CTkLabel(f3,text="الاكثر مبيعا",corner_radius=20,compound="right",height=50,font=ck.CTkFont(size=30,weight="bold")) 
-        l2.pack(pady=10)
+        f3.grid(row=0,column=1,padx=20,pady=10)
+        l2 = ck.CTkLabel(f3,text="الاكثر مبيعا",corner_radius=20,font=ck.CTkFont(size=20,weight="bold")) 
+        l2.pack(pady=5)
 
         columns2 = ('id','name', 'cont','num')
 
 
         self.table2 = ttk.Treeview(f3,
                               columns=columns2,
-                              height=19,
+                              height=12,
                               selectmode='browse',
                               show='headings')
 
@@ -67,11 +69,13 @@ class Dash(ck.CTkFrame):
         self.table2.heading('num', text=' عدد ')
 
         self.table2.bind('<Motion>', 'break')
-        self.table2.pack(pady=10)
+        self.table2.pack(pady=5)
 
 
-        f7 = ck.CTkFrame(s_frame , fg_color="#9B9ECE")
-        f7.grid(row=0,column=2,sticky="nsew")
+        ##########
+
+        # f7 = ck.CTkFrame(s_frame , fg_color="#9B9ECE")
+        # f7.grid(row=0,column=2,sticky="nsew")
         # f8 = ck.CTkFrame(self , fg_color="black")
         # f8.grid(row=2,column=0,sticky="nsew")
                 # create tabview
@@ -97,7 +101,7 @@ class Dash(ck.CTkFrame):
         self.f6.grid(row=0,column=0,sticky="nsew")
         # self.f1.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        s_frame.pack(fill=ck.BOTH, expand=True)
+        s_frame.pack()
         self.intTable()
         self.intTable2()
         self.month_graph()
@@ -167,22 +171,16 @@ class Dash(ck.CTkFrame):
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         
 
-        ax.set_title(" month orders")
-        ax.set_ylabel(" order number")
+        ax.set_title(" Month orders")
+        ax.set_ylabel(" Order Cont")
         ax.set_xlabel("days")
         ax.grid(axis='y')
 
 
         canvas = FigureCanvasTkAgg(fig, master=self.f4)
         canvas.draw()
-
-
-        
         canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
-      
-
-         
-
+    
     def week_graph(self):
         mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay,COUNT(OrderID) AS NumberOfOrders FROM  Orders WHERE OrderDate >= CURDATE() - INTERVAL 1 WEEK GROUP BY OrderDay ORDER BY OrderDay;")
         result = mycursor.fetchall()
@@ -206,22 +204,16 @@ class Dash(ck.CTkFrame):
         ax.plot(day_names, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
         
         # Customize the plot (optional)
-        ax.set_title("week order")
+        ax.set_title("Week Order")
         ax.set_xlabel("days")
-        ax.set_ylabel("order number")
+        ax.set_ylabel("Order Cont")
         ax.grid(axis='y')
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
         canvas = FigureCanvasTkAgg(fig, master=self.f1)
         canvas.draw()
-
-
-        
         canvas.get_tk_widget().pack(side=ck.TOP, fill=ck.BOTH, expand=1)
       
-
-         
-
     def month_graph_cash(self):
         current_date = datetime.now()
 
@@ -254,8 +246,8 @@ class Dash(ck.CTkFrame):
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
 
-        ax.set_title(" month orders")
-        ax.set_ylabel(" order total")
+        ax.set_title(" Month Cash")
+        ax.set_ylabel("Total")
         ax.set_xlabel("days")
         ax.grid(axis='y')
 
@@ -293,9 +285,9 @@ class Dash(ck.CTkFrame):
         ax.plot(day_names, number_of_orders, marker='o', linestyle='-', color='black' ,linewidth=3)
         
         # Customize the plot (optional)
-        ax.set_title("week order")
+        ax.set_title("Week Cash")
         ax.set_xlabel("days")
-        ax.set_ylabel("order total")
+        ax.set_ylabel("Total")
         ax.grid(axis='y')
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 

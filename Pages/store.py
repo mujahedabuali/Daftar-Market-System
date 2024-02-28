@@ -152,25 +152,33 @@ class Store(ck.CTkFrame):
 
     def search(self, event):
         search_query = self.search_entry.get().lower()
-        self.table.selection_remove(self.table.selection())
-        
-        for item in self.table.get_children():
-            name = self.table.item(item)["values"][1]
-            name = name.lower()
 
-            if search_query in name:
-                self.table.selection_add(item)
-                self.table.see(item)
+        self.table.delete(*self.table.get_children())
+
+        if search_query:
+            sql = f"SELECT  ProductID,ProductName,StockQuantity,Unit,sell_Price,ProductDate,Price  FROM Products WHERE LOWER(ProductName) LIKE '%{search_query}%'"
+            mycursor.execute(sql)
+            matching_products = mycursor.fetchall()
+
+            for product in matching_products:
+                self.table.insert("", "end", values=product)
+
+        else:self.intTable()
 
     def searchByID(self, event):
         search_query = self.search_entry2.get().lower()
-        self.table.selection_remove(self.table.selection())
-        
-        for item in self.table.get_children():
-            id = str(self.table.item(item)["values"][0]).lower()
-            if search_query in id:
-                self.table.selection_add(item)
-                self.table.see(item)
+
+        self.table.delete(*self.table.get_children())
+
+        if search_query:
+            sql = f"SELECT ProductID,ProductName,StockQuantity,Unit,sell_Price,ProductDate,Price  FROM Products WHERE LOWER(ProductID) LIKE '%{search_query}%'"
+            mycursor.execute(sql)
+            matching_products = mycursor.fetchall()
+
+            for product in matching_products:
+                self.table.insert("", "end", values=product)
+
+        else:self.intTable()
 
     def add_data(self):
         self.add_window()
@@ -736,7 +744,7 @@ class Store(ck.CTkFrame):
         
         company_info = {
         'name': 'المخماسي لمواد البناء والادوات الصحية',
-        'telephone': '0569-660392',
+        'telephone': '0598-508615',
         'address': 'مخماس - الشارع الرئيسي'
         }
         
@@ -924,7 +932,7 @@ class Store(ck.CTkFrame):
         
         company_info = {
         'name': 'المخماسي لمواد البناء والادوات الصحية',
-        'telephone': '0569-660392',
+        'telephone': '0598-508615',
         'address': 'مخماس - الشارع الرئيسي'
         }
         
