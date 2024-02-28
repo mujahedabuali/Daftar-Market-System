@@ -123,7 +123,6 @@ class Sold(ck.CTkFrame):
         self.delete_button2.grid(row=0, column=0, padx=10)
         self.delete_button2.configure(state="disabled")
   
-
         self.intTable2()
 
 
