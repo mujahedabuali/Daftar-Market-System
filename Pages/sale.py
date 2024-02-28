@@ -589,18 +589,16 @@ class page4(ck.CTkFrame):
                 for x in order_details_data:
                     if (x[0]) is not None:
                         x3=self.convert_arabic_to_englishText(x[3])    
-                        x5=self.convert_arabic_to_englishText(x[6]) 
-                        detials_data.append((order_id, (x[0]),x[3],x3,x5)) 
+                        x5=self.convert_arabic_to_englishText(x[5]) 
+                        detials_data.append((order_id, (x[0]),x3,x[6],x5))
                 
                 
                 mycursor.executemany(insert_order_details_query,detials_data)
                 mydb.commit()
 
                 update_product_quantity_query = "UPDATE Products SET StockQuantity = StockQuantity - %s WHERE ProductID = %s"
-                for x in detials_data:
-                    product_id = x[0] 
-                    quantity = x[3] 
-                    mycursor.execute(update_product_quantity_query, (quantity, product_id))
+                for xx in detials_data:
+                        mycursor.execute(update_product_quantity_query, (xx[2], xx[1]))
 
                 mydb.commit()
 
