@@ -137,7 +137,7 @@ class Record(ck.CTkFrame):
         self.pay_button.pack(padx=10,pady=30)
 
 
-        self.de_win.geometry("440x340+600+100")
+        self.de_win.geometry("340x240+700+100")
         self.de_win.title('دفعة')
    
     def det(self):
@@ -152,17 +152,17 @@ class Record(ck.CTkFrame):
         de_win.geometry("440x500+600+100")
         de_win.title('التفاصيل')
 
-        name = ck.CTkLabel(de_win,text=f"name : {user[0]}",text_color="black",corner_radius=20,height=30,font=ck.CTkFont(size=20,weight="bold") )
+        name = ck.CTkLabel(de_win,text=f" {user[0]}",text_color="black",corner_radius=20,height=30,font=ck.CTkFont(size=20,weight="bold") )
         name.pack(pady=10)
-        phone = ck.CTkLabel(de_win,text=f"Phone : {user[1]}",text_color="black",corner_radius=20,height=30,font=ck.CTkFont(size=20,weight="bold"))
+        phone = ck.CTkLabel(de_win,text=f" {user[1]}",text_color="black",corner_radius=20,height=30,font=ck.CTkFont(size=20,weight="bold"))
         phone.pack(pady=10)
 
 
         columns = ('date','amount')
         self.table = ttk.Treeview(de_win ,columns=columns,height=14,selectmode='browse',show='headings')
 
-        self.table.column("#1", anchor="c", minwidth=300, width=300)
-        self.table.column("#2", anchor="c", minwidth=100, width=100)
+        self.table.column("#1", anchor="c", minwidth=200, width=200)
+        self.table.column("#2", anchor="c", minwidth=150, width=150)
         
 
         self.table.heading('date', text='التاريخ')
@@ -189,6 +189,8 @@ class Record(ck.CTkFrame):
             else:
                 values =  self.table2.item(selected_item, 'values')
                 if  float(self.amount.get()) > float(values[2])  :
+                    mixer.music.load("sounds/error.mp3")
+                    mixer.music.play()
                     messagebox.showwarning("Warning Message",f"لا يمكنك دفع اكثر من {values[2]}",icon="warning")
                     return
 
@@ -212,7 +214,8 @@ class Record(ck.CTkFrame):
                     mycursor.execute(update_query, (values[3],))
                     mydb.commit()
                     self.table2.delete(selected_item)
-                
+                mixer.music.load("sounds/done.wav")
+                mixer.music.play()
                 self.de_win.destroy()
 
     def on_item_select(self,event):
