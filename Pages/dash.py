@@ -144,9 +144,11 @@ class Dash(ck.CTkFrame):
         current_day = current_date.strftime('%d')
         current_day = int(current_day)
         first_day_of_month = current_date.replace(day=1)
+        first_day_of_month_str = first_day_of_month.strftime('%Y-%m-%d')
 
 
-        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, COUNT(OrderID) AS NumberOfOrders FROM Orders WHERE OrderDate >= %s and OrderDate <= %s GROUP BY  OrderDay ORDER BY OrderDay;",(first_day_of_month,date_now))
+
+        mycursor.execute("SELECT  DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, COUNT(OrderID) AS NumberOfOrders from  orders AS o WHERE o.OrderDate >= %s and o.OrderDate <= %s   GROUP BY  OrderDate ORDER BY OrderDay;",(first_day_of_month_str,date_now))
         result = mycursor.fetchall()
         result_dict = dict(result)
 
@@ -220,9 +222,11 @@ class Dash(ck.CTkFrame):
         current_day = current_date.strftime('%d')
         current_day = int(current_day)
         first_day_of_month = current_date.replace(day=1)
+        first_day_of_month_str = first_day_of_month.strftime('%Y-%m-%d')
 
 
-        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, SUM(TotalAmount) AS NumberOfOrders FROM Orders WHERE OrderDate >= %s and OrderDate <= %s GROUP BY  OrderDay ORDER BY OrderDay;",(first_day_of_month,date_now))
+
+        mycursor.execute("SELECT DATE_FORMAT(OrderDate, '%Y-%m-%d') AS OrderDay, SUM(TotalAmount) AS NumberOfOrders FROM Orders WHERE OrderDate >= %s and OrderDate <= %s GROUP BY  OrderDay ORDER BY OrderDay;",(first_day_of_month_str,date_now))
         result = mycursor.fetchall()
         result_dict = dict(result)
 
