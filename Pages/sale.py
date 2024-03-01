@@ -475,6 +475,12 @@ class page4(ck.CTkFrame):
                     
                     order_id = mycursor.lastrowid
                     order_details_data = get_order_details_from_tree()
+
+
+                    insert_payments_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
+                    payments_data = (datetime.now(),order_id,self.Origin_price_variabled)
+                    mycursor.execute(insert_payments_query, payments_data)
+                    mydb.commit()
                     
                     insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
 
@@ -519,6 +525,11 @@ class page4(ck.CTkFrame):
                             
                             order_id = mycursor.lastrowid
                             order_details_data = get_order_details_from_tree()
+
+                            insert_payments_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
+                            payments_data = (datetime.now(),order_id,self.Origin_price_variabled)
+                            mycursor.execute(insert_payments_query, payments_data)
+                            mydb.commit()
                             
 
                             insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
