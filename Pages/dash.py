@@ -28,8 +28,8 @@ class Dash(ck.CTkFrame):
                               selectmode='browse',
                               show='headings')
 
-        self.table.column("#1", anchor="c", minwidth=100, width=100)
-        self.table.column("#2", anchor="c", minwidth=200, width=200)
+        self.table.column("#1", anchor="c", minwidth=70, width=70)
+        self.table.column("#2", anchor="c", minwidth=240, width=240)
         self.table.column("#3", anchor="c", minwidth=80, width=80)
 
 
@@ -56,8 +56,8 @@ class Dash(ck.CTkFrame):
                               selectmode='browse',
                               show='headings')
 
-        self.table2.column("#1", anchor="c", minwidth=100, width=100)
-        self.table2.column("#2", anchor="c", minwidth=200, width=200)
+        self.table2.column("#1", anchor="c", minwidth=70, width=70)
+        self.table2.column("#2", anchor="c", minwidth=240, width=240)
         self.table2.column("#3", anchor="c", minwidth=180, width=180)
         self.table2.column("#4", anchor="c", minwidth=80, width=80)
 
@@ -114,7 +114,7 @@ class Dash(ck.CTkFrame):
             for row in self.table.get_children():
                 self.table.delete(row)
 
-            mycursor.execute("SELECT ProductID,ProductName,StockQuantity FROM Products where StockQuantity < 7 ORDER BY ProductID DESC")
+            mycursor.execute("SELECT ProductID,ProductName,StockQuantity FROM Products where StockQuantity < 7 ORDER BY StockQuantity ASC")
             products = mycursor.fetchall()
             self.table.tag_configure('red_tag', background='red')
             for product in products:
