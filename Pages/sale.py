@@ -578,8 +578,14 @@ class page4(ck.CTkFrame):
                 mydb.commit()
         
                 
+        
+                
                 order_id = mycursor.lastrowid
                 order_details_data = get_order_details_from_tree()
+                insert_order_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
+                order_data = (datetime.now(),order_id,float(payValue_entry.get()))
+                mycursor.execute(insert_order_query, order_data)
+                mydb.commit()
 
                 
                 
@@ -867,38 +873,38 @@ class page4(ck.CTkFrame):
         'address': 'مخماس - الشارع الرئيسي'
         }
         
-        text = company_info['name']
-        reshaped_text = arabic_reshaper.reshape(text)
-        bidi_text1 = get_display(reshaped_text)
+        # text = company_info['name']
+        # reshaped_text = arabic_reshaper.reshape(text)
+        # bidi_text1 = get_display(reshaped_text)
 
-        text = company_info['telephone']
-        reshaped_text = arabic_reshaper.reshape(text)
-        bidi_text2 = get_display(reshaped_text)
+        # text = company_info['telephone']
+        # reshaped_text = arabic_reshaper.reshape(text)
+        # bidi_text2 = get_display(reshaped_text)
 
-        text = company_info['address']
-        reshaped_text = arabic_reshaper.reshape(text)
-        bidi_text3 = get_display(reshaped_text)
+        # text = company_info['address']
+        # reshaped_text = arabic_reshaper.reshape(text)
+        # bidi_text3 = get_display(reshaped_text)
+
+
+        # pdf_canvas.setFont("Arabic", 20)
+
+        # middle_x = letter[0] / 2
+        # company_name_x = middle_x-21 - pdf_canvas.stringWidth(bidi_text1, "Arabic", 14) / 2
+
+
+        # pdf_canvas.drawString(company_name_x, 750, bidi_text1)
 
         pdf_canvas = canvas.Canvas(output_filename, pagesize=letter)
-
-        pdf_canvas.setFont("Arabic", 20)
-
-        middle_x = letter[0] / 2
-        company_name_x = middle_x-21 - pdf_canvas.stringWidth(bidi_text1, "Arabic", 14) / 2
-
-
-        pdf_canvas.drawString(company_name_x, 750, bidi_text1)
-
         pdf_canvas.setFont("Arabic", 12)
 
-        pdf_canvas.drawString(30, 730, f"{bidi_text2}")
+        # pdf_canvas.drawString(30, 730, f"{bidi_text2}")
 
-        address_width = pdf_canvas.stringWidth(bidi_text3, "Arabic", 12)
-        pdf_canvas.drawString(letter[0] - address_width - 30, 730, bidi_text3)
+        # address_width = pdf_canvas.stringWidth(bidi_text3, "Arabic", 12)
+        # pdf_canvas.drawString(letter[0] - address_width - 30, 730, bidi_text3)
 
-        line_start = 30
-        line_end = letter[0] - 30
-        pdf_canvas.line(line_start, 700, line_end, 700)
+        # line_start = 30
+        # line_end = letter[0] - 30
+        # pdf_canvas.line(line_start, 700, line_end, 700)
 
 
 
@@ -909,7 +915,7 @@ class page4(ck.CTkFrame):
         bidi_text4 = get_display(reshaped_text)
         title_width = pdf_canvas.stringWidth(bidi_text4, "Arabic", 19)
         title_x = (letter[0] - title_width) / 2
-        pdf_canvas.drawString(title_x, 670, bidi_text4)
+        pdf_canvas.drawString(title_x, 700, bidi_text4)
 
 
 
@@ -940,7 +946,7 @@ class page4(ck.CTkFrame):
                 
         cell_height = 20
 
-        x_start = 45
+        x_start = 70
         y_start = 540
 
         pdf_canvas.setFont("Arabic", 12)
@@ -962,11 +968,11 @@ class page4(ck.CTkFrame):
             x = x_start + 2.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[1])} ")
             bidi_text = get_display(reshaped_text)
-            pdf_canvas.drawString(191 - pdf_canvas.stringWidth(bidi_text, "Arabic", 12) / 2 , y + 5, bidi_text)
+            pdf_canvas.drawString(211 - pdf_canvas.stringWidth(bidi_text, "Arabic", 12) / 2 , y + 5, bidi_text)
             pdf_canvas.setStrokeColor(colors.blue)
             pdf_canvas.setLineWidth(1)
-            pdf_canvas.line(105, y + 21, 105 + cell_width, y + 21)
-            pdf_canvas.rect(105, y + 21, cell_width, -cell_height, stroke=1, fill=0)
+            pdf_canvas.line(130, y + 21, 130 + cell_width, y + 21)
+            pdf_canvas.rect(130, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
             cell_width = 60
             x = x_start + 3.83 * cell_width
@@ -978,18 +984,18 @@ class page4(ck.CTkFrame):
             pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
-            cell_width = 60
-            x = x_start + 4.83 * cell_width
-            reshaped_text = arabic_reshaper.reshape(f"{str(row[3])} ")
-            bidi_text = get_display(reshaped_text)
-            pdf_canvas.drawString(x + 10, y + 5, bidi_text)
-            pdf_canvas.setStrokeColor(colors.blue)
-            pdf_canvas.setLineWidth(1)
-            pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
-            pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
+            # cell_width = 60
+            # x = x_start + 4.83 * cell_width
+            # reshaped_text = arabic_reshaper.reshape(f"{str(row[3])} ")
+            # bidi_text = get_display(reshaped_text)
+            # pdf_canvas.drawString(x + 10, y + 5, bidi_text)
+            # pdf_canvas.setStrokeColor(colors.blue)
+            # pdf_canvas.setLineWidth(1)
+            # pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
+            # pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
             cell_width = 60
-            x = x_start + 5.83 * cell_width
+            x = x_start + 4.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[4])} ")
             bidi_text = get_display(reshaped_text)
             pdf_canvas.drawString(x + 10, y + 5, bidi_text)
@@ -999,7 +1005,7 @@ class page4(ck.CTkFrame):
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
             
             cell_width = 60
-            x = x_start + 6.83 * cell_width
+            x = x_start + 5.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[5])} ")
             bidi_text = get_display(reshaped_text)
             pdf_canvas.drawString(x + 10, y + 5, bidi_text)
@@ -1009,7 +1015,7 @@ class page4(ck.CTkFrame):
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
 
             cell_width = 60
-            x = x_start + 7.83 * cell_width
+            x = x_start + 6.83 * cell_width
             reshaped_text = arabic_reshaper.reshape(f"{str(row[6])} ")
             bidi_text = get_display(reshaped_text)
             pdf_canvas.drawString(x + 7, y + 5, bidi_text)
@@ -1017,7 +1023,6 @@ class page4(ck.CTkFrame):
             pdf_canvas.setLineWidth(1)
             pdf_canvas.line(x, y + 21, x + cell_width, y + 21)
             pdf_canvas.rect(x, y + 21, cell_width, -cell_height, stroke=1, fill=0)
-
 
         y_prime=0
         row_index=1
@@ -1034,14 +1039,14 @@ class page4(ck.CTkFrame):
             draw_table_row(row, y)
             y_prime=y    
 
-        label = "خصم :"
-        pdf_canvas.setFont("Arabic", 11)
-        reshaped_text = arabic_reshaper.reshape(f"{label} ")
-        bidi_text6 = get_display(reshaped_text)
-        label_width = pdf_canvas.stringWidth(bidi_text6, "Arabic", 19)
-        label_width = (letter[0] - label_width) / 2
+        # label = "خصم :"
+        # pdf_canvas.setFont("Arabic", 11)
+        # reshaped_text = arabic_reshaper.reshape(f"{label} ")
+        # bidi_text6 = get_display(reshaped_text)
+        # label_width = pdf_canvas.stringWidth(bidi_text6, "Arabic", 19)
+        # label_width = (letter[0] - label_width) / 2
 
-        pdf_canvas.drawString(label_width+15, y_prime-70, f"{discount} {bidi_text6} ")
+        # pdf_canvas.drawString(label_width+15, y_prime-70, f"{discount} {bidi_text6} ")
 
         label = "المبلغ الاجمالي بالشيكل :"
         pdf_canvas.setFont("Arabic", 13)
@@ -1073,7 +1078,7 @@ class page4(ck.CTkFrame):
         self.table2.delete(*self.table2.get_children())
 
         if search_query:
-            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductName) LIKE '%{search_query}%'"
+            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductName) LIKE '%{search_query}%' and StockQuantity > 0"
             mycursor.execute(sql)
             matching_products = mycursor.fetchall()
 
@@ -1089,7 +1094,7 @@ class page4(ck.CTkFrame):
         self.table2.delete(*self.table2.get_children())
 
         if search_query:
-            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductID) LIKE '%{search_query}%'"
+            sql = f"SELECT ProductID,ProductName,sell_Price,Unit  FROM Products WHERE LOWER(ProductID) LIKE '%{search_query}%' and StockQuantity > 0"
             mycursor.execute(sql)
             matching_products = mycursor.fetchall()
 
