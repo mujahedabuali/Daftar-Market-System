@@ -225,3 +225,7 @@ ADD FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE;
 ALTER TABLE OrderDetails
 ADD COLUMN discount VARCHAR(250)  DEFAULT '-';
 
+-------------------
+ALTER TABLE OrderDetails
+ADD COLUMN ProductPrice DECIMAL(10, 2);
+
