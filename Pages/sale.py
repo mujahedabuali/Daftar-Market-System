@@ -201,10 +201,7 @@ class page4(ck.CTkFrame):
         selected_item = self.table2.focus()
         
         if selected_item:
-            if (not self.cont_entry.get() or not self.cont_entry.get().isdigit()):
-                mixer.music.load("sounds/error.mp3")
-                mixer.music.play()
-                messagebox.showwarning("Warning Message","قيم الإدخال غير صحيح",icon="warning")
+            if (not self.is_valid_entry(self.cont_entry.get())):
                 self.cont_entry.delete(0,'end')
                 self.cont_entry.insert(0, "1")
             
@@ -212,7 +209,7 @@ class page4(ck.CTkFrame):
                     values =  self.table2.item(selected_item, 'values')
                     
                     if not self.table.exists(values[0]):
-                        if not self.is_exists(int(self.cont_entry.get())):
+                        if not self.is_exists(float(self.cont_entry.get())):
                             mixer.music.load("sounds/error.mp3")
                             mixer.music.play()
                             messagebox.showwarning("Warning Message","غير موجود في المخزن!",icon="warning")
@@ -230,7 +227,7 @@ class page4(ck.CTkFrame):
                             x = self.table.item(item_id, 'values')
     
                             if x[0] == values[0]:
-                                new_quantity = int(x[3]) + int(self.cont_entry.get()) 
+                                new_quantity = float(x[3]) + float(self.cont_entry.get()) 
 
                                 if not self.is_exists(new_quantity):
                                     mixer.music.load("sounds/error.mp3")
@@ -478,16 +475,16 @@ class page4(ck.CTkFrame):
 
 
                     insert_payments_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
-                    payments_data = (datetime.now(),order_id,self.Origin_price_variabled)
+                    payments_data = (datetime.now(),order_id,self.AfterDiscountVar)
                     mycursor.execute(insert_payments_query, payments_data)
                     mydb.commit()
                     
-                    insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
+                    insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount,ProductPrice) VALUES (%s,%s, %s, %s, %s,%s)"
 
                     detials_data=[]
                     for x in order_details_data:
                         if (x[0]) is not None:
-                            detials_data.append((order_id, (x[0]),x[3],x[6],x[5])) 
+                            detials_data.append((order_id, (x[0]),x[3],x[6],x[5],x[2])) 
                     
                     
                     mycursor.executemany(insert_order_details_query,detials_data)
@@ -527,19 +524,18 @@ class page4(ck.CTkFrame):
                             order_details_data = get_order_details_from_tree()
 
                             insert_payments_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
-                            payments_data = (datetime.now(),order_id,self.Origin_price_variabled)
+                            payments_data = (datetime.now(),order_id,self.AfterDiscountVar)
                             mycursor.execute(insert_payments_query, payments_data)
-                            mydb.commit()
-                            
+                            mydb.commit()                            
 
-                            insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
+                            insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount,ProductPrice) VALUES (%s,%s, %s, %s, %s,%s)"
 
                             detials_data=[]
                             for x in order_details_data:
                                 if (x[0]) is not None:
                                      x3=self.convert_arabic_to_englishText(x[3])    
                                      x5=self.convert_arabic_to_englishText(x[5]) 
-                                     detials_data.append((order_id, (x[0]),x3,x[6],x5)) 
+                                     detials_data.append((order_id, (x[0]),x3,x[6],x5,x[2])) 
                         
                             mycursor.executemany(insert_order_details_query,detials_data)
                             mydb.commit()
@@ -589,25 +585,24 @@ class page4(ck.CTkFrame):
                 mydb.commit()
         
                 
-        
-                
                 order_id = mycursor.lastrowid
                 order_details_data = get_order_details_from_tree()
-                insert_order_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
-                order_data = (datetime.now(),order_id,float(payValue_entry.get()))
-                mycursor.execute(insert_order_query, order_data)
-                mydb.commit()
+                if float(payValue_entry.get())>0:
+                    insert_order_query = "INSERT INTO payments (paymentDate, OrderID, Amount) VALUES (%s,%s,%s)"
+                    order_data = (datetime.now(),order_id,float(payValue_entry.get()))
+                    mycursor.execute(insert_order_query, order_data)
+                    mydb.commit()
 
                 
                 
-                insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount) VALUES (%s, %s, %s, %s,%s)"
+                insert_order_details_query = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Subtotal,discount,ProductPrice) VALUES (%s,%s, %s, %s, %s,%s)"
 
                 detials_data=[]
                 for x in order_details_data:
                     if (x[0]) is not None:
                         x3=self.convert_arabic_to_englishText(x[3])    
                         x5=self.convert_arabic_to_englishText(x[5]) 
-                        detials_data.append((order_id, (x[0]),x3,x[6],x5))
+                        detials_data.append((order_id, (x[0]),x3,x[6],x5,x[2]))
                 
                 
                 mycursor.executemany(insert_order_details_query,detials_data)
@@ -837,7 +832,7 @@ class page4(ck.CTkFrame):
     def printAssist(self,order_id):
          
             sql_query = """
-                    SELECT Products.ProductID,Products.ProductName, Products.sell_Price ,OrderDetails.discount,OrderDetails.Quantity,Products.Unit , OrderDetails.Subtotal, remainAmount, TotalAmount
+                    SELECT Products.ProductID,Products.ProductName, OrderDetails.ProductPrice ,OrderDetails.discount,OrderDetails.Quantity,Products.Unit , OrderDetails.Subtotal, remainAmount, TotalAmount
                     FROM Orders
                     JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
                     JOIN Products ON OrderDetails.ProductID = Products.ProductID
@@ -1155,3 +1150,14 @@ class page4(ck.CTkFrame):
             text = text.replace(arabic_digit, english_digit)
 
         return text
+    
+
+    def is_valid_entry(self,entry_value):
+            try:
+                float_value = float(entry_value)
+                return True
+            except ValueError:
+                mixer.music.load("sounds/error.mp3")
+                mixer.music.play()
+                messagebox.showwarning("Warning Message","ادخال خاطئ",icon="warning")
+                return False
