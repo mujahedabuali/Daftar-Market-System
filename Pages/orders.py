@@ -69,7 +69,8 @@ class Orders(ck.CTkFrame):
         self.done_button.configure(state="disabled")
 
         self.intTable()
-
+    
+    
 
     def intTable(self):
 
@@ -180,7 +181,7 @@ class Orders(ck.CTkFrame):
             table.delete(row)
 
         sql_query = """
-                    SELECT Products.ProductID, Products.ProductName, Products.Price ,OrderDetails.Quantity,OrderDetails.Subtotal
+                    SELECT Products.ProductID, Products.ProductName, OrderDetails.ProductPrice ,OrderDetails.Quantity,OrderDetails.Subtotal
                     FROM Orders
                     JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
                     JOIN Products ON OrderDetails.ProductID = Products.ProductID
