@@ -193,7 +193,7 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("calc")
 
     def page4_event(self):
-        self.salePage.clear()
+        # self.salePage.clear()
         self.salePage.intTable2()
         self.select_frame_by_name("salePage")    
 
@@ -207,6 +207,7 @@ class App(customtkinter.CTk):
    
     def sold_event(self):
         self.soldPage.intTable()
+        self.soldPage.intTable2()
         self.select_frame_by_name("soldPage")
 
     def orders_event(self):
@@ -227,6 +228,8 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("Setting")    
     
     def dash_event(self):
+        self.dashPage.intTable()
+        self.dashPage.intTable2()
         self.select_frame_by_name("dash") 
 
     def oblig_event(self):
