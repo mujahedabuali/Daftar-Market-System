@@ -113,6 +113,9 @@ class page4(ck.CTkFrame):
         self.delete_button = ck.CTkButton(button_frame, text="حذف",height=30,fg_color="red", command=self.delete_item,font=ck.CTkFont(size=20,weight="bold"))
         self.delete_button.grid(row=0, column=2, padx=10)
 
+        self.clear_button = ck.CTkButton(button_frame, text="مسح الكل",height=30,command=self.clear,font=ck.CTkFont(size=20,weight="bold"))
+        self.clear_button.grid(row=0, column=3, padx=10)
+
         total_frame = ck.CTkFrame(left_frame,fg_color="transparent")
         total_frame.pack(pady=20)
         self.total = ck.CTkLabel(total_frame,textvariable=self.totalPrice,text_color="green",corner_radius=20,height=30,font=ck.CTkFont(size=25,weight="bold"))
