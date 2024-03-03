@@ -193,10 +193,12 @@ class Store(ck.CTkFrame):
                 mixer.music.load("sounds/error.mp3")
                 mixer.music.play()
                 messagebox.showwarning("Warning Message","قم بادخال جميع الحقول",icon="warning")
-            elif self.entry.get()[0].isdigit() or not (self.entry2.get().isdigit() or self.entry2.get().count('.') == 1) or not (self.entry3.get().isdigit() or self.entry3.get().count('.') == 1) or not (self.entry4.get().isdigit() or self.entry4.get().count('.') == 1):
+            
+            elif not self.is_valid_entry(self.entry3.get()) or not  self.is_valid_entry(self.entry2.get()) or not  self.is_valid_entry(self.entry4.get()):  
                   mixer.music.load("sounds/error.mp3")
                   mixer.music.play()
                   messagebox.showwarning("Warning Message","قيم الإدخال غير صحيحة",icon="warning")
+            
             elif self.is_exists(self.entry.get()):
                  mixer.music.load("sounds/error.mp3")
                  mixer.music.play()
@@ -277,13 +279,11 @@ class Store(ck.CTkFrame):
 
         def get():
            
-            if (not entry or not (entry.get().isdigit()) or not(int(entry.get())>0)):
+            if (not self.is_valid_entry(entry.get()) or not(float(entry.get())>0)):
                 mixer.music.load("sounds/error.mp3")
                 mixer.music.play()
                 messagebox.showwarning("Warning Message","قم بادخال قيم صحيحة",icon="warning")
             else:
-                    mixer.music.load("sounds/done.wav")
-                    mixer.music.play()
                     self.convert_arabic_to_english(entry)
 
                     update_query = "UPDATE Products SET StockQuantity = %s WHERE ProductID=%s"
@@ -299,6 +299,8 @@ class Store(ck.CTkFrame):
 
                     entry.delete(0,'end')
                     entry.insert(0,0)
+                    mixer.music.load("sounds/done.wav")
+                    mixer.music.play()
             
 
         new_window = tk.Toplevel(self)
@@ -385,7 +387,7 @@ class Store(ck.CTkFrame):
                 window.destroy()
 
             elif type == "sell": 
-                if (not text or not (text.isdigit() or text.count('.') == 1) ):
+                if (not text or not self.is_valid_entry(text)) :
                     mixer.music.load("sounds/error.mp3")
                     mixer.music.play()
                     messagebox.showwarning("Warning Message","قم بادخال قيم صحيحة",icon="warning")
@@ -393,7 +395,7 @@ class Store(ck.CTkFrame):
                 
                 
                 update_query = "UPDATE Products SET sell_Price = %s WHERE ProductID=%s"
-                mycursor.execute(update_query, (text,values[0]))
+                mycursor.execute(update_query, (float(text),values[0]))
                 mydb.commit()
 
                 self.intTable()
@@ -407,14 +409,14 @@ class Store(ck.CTkFrame):
                 window.destroy()
  
             elif type == "cont": 
-                if (not text or not (text.isdigit()) ):
+                if (not text or not self.is_valid_entry(text) ):
                     mixer.music.load("sounds/error.mp3")
                     mixer.music.play()
                     messagebox.showwarning("Warning Message","قم بادخال قيم صحيحة",icon="warning")
                     return
                 
                 update_query = "UPDATE Products SET StockQuantity = %s WHERE ProductID=%s"
-                mycursor.execute(update_query, (text,values[0]))
+                mycursor.execute(update_query, (float(text),values[0]))
                 mydb.commit()
 
                 self.intTable()
@@ -428,14 +430,14 @@ class Store(ck.CTkFrame):
                 window.destroy()
   
             elif type == "price": 
-                if (not text or not (text.isdigit() or text.count('.') == 1) ):
+                if (not text or not self.is_valid_entry(text) ):
                     mixer.music.load("sounds/error.mp3")
                     mixer.music.play()
                     messagebox.showwarning("Warning Message","قم بادخال قيم صحيحة",icon="warning")
                     return
                 
                 update_query = "UPDATE Products SET Price = %s WHERE ProductID=%s"
-                mycursor.execute(update_query, (text,values[0]))
+                mycursor.execute(update_query, (float(text),values[0]))
                 mydb.commit()
 
                 self.intTable()
@@ -562,7 +564,7 @@ class Store(ck.CTkFrame):
             self.label = ck.CTkLabel(new_window, text='تعديل الوحدة',corner_radius=20,height=50,text_color="#2e8fe7",font=ck.CTkFont(size=22,weight="bold")) 
             self.label.pack(pady=5)
 
-            self.unit_dropdown = ck.CTkComboBox(new_window, values=["قطعة", "صندوق", "كيس","كيلو","طن","غير ذلك"])
+            self.unit_dropdown = ck.CTkComboBox(new_window, values=["قطعة","متر","صندوق","جوز","كيس","كيلو","طن","غير ذلك"])
             self.unit_dropdown.pack(pady=10)
             self.unit_dropdown.set(self.entry5.get())
 
@@ -1111,3 +1113,12 @@ class Store(ck.CTkFrame):
         text1=entry_value
         return text1
 
+    def is_valid_entry(self,entry_value):
+            try:
+                float_value = float(entry_value)
+                return True
+            except ValueError:
+                mixer.music.load("sounds/error.mp3")
+                mixer.music.play()
+                messagebox.showwarning("Warning Message","ادخال خاطئ",icon="warning")
+                return False
