@@ -501,6 +501,7 @@ class page4(ck.CTkFrame):
                     
                     mixer.music.load("sounds/done.wav")
                     mixer.music.play()
+                    self.clear()
                     new_window.destroy()
 
                 else :
@@ -552,6 +553,7 @@ class page4(ck.CTkFrame):
 
                             mixer.music.load("sounds/done.wav")
                             mixer.music.play()
+                            self.clear()
                             new_window.destroy()
    
         def part_done():
@@ -619,6 +621,7 @@ class page4(ck.CTkFrame):
 
                 mixer.music.load("sounds/done.wav")
                 mixer.music.play()
+                self.clear()
                 new_window.destroy()
 
         new_window = tk.Toplevel(self)
